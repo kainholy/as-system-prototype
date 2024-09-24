@@ -1,5 +1,3 @@
-
-
 import {
   Flex,
   Link,
@@ -10,115 +8,179 @@ import {
   Box,
   AccordionIcon,
   AccordionPanel,
-} from '@chakra-ui/react';
+} from "@chakra-ui/react";
 // import Link from 'next/link';
-import Image from 'next/image';
+import Image from "next/image";
 
 export default function Navigation() {
-  
-    return (
-      <>
-        <Box w='220px' h='100vh' position='fixed'>
-          <Box p='20px 16px' backgroundColor="gray.50" h='100%'>
-            <Box p='0'>
-              <Link href='/admin/'>
-                <Image src='/logo.png' alt='logo' width={54} height={59} />
+  return (
+    <>
+      <Box w="220px" h="100vh" position="fixed">
+        <Box p="20px 16px" backgroundColor="gray.50" h="100%">
+          <Box p="0">
+            <Link href="/admin/">
+              <Image src="/logo.png" alt="logo" width={54} height={59} />
+            </Link>
+          </Box>
+          <Box p={0}>
+            <Flex
+              justify="center"
+              align="left"
+              direction="column"
+              mt="80px"
+              gap="26px"
+            >
+              <Accordion allowToggle>
+                <AccordionItem border="none">
+                  <h2>
+                    <AccordionButton p={0}>
+                      <Flex
+                        as="span"
+                        flex="1"
+                        _hover={{ bg: "gray.200" }}
+                        p="12px"
+                        borderRadius="4px"
+                      >
+                        <Flex gap="10px" w="100%">
+                          <CalendarIcon width="18.41px" height="19px" />
+                          <Heading size="sm">シフト</Heading>
+                        </Flex>
+                        <AccordionIcon />
+                      </Flex>
+                    </AccordionButton>
+                  </h2>
+                  <AccordionPanel mt="8px" p={0}>
+                    <Flex gap="8px" direction="column">
+                      <Link
+                        href="/admin/shift"
+                        _hover={{ bg: "gray.200" }}
+                        p="8px 6px 8px 40px"
+                        borderRadius="4px"
+                      >
+                        <Heading size="xs">シフト一覧</Heading>
+                      </Link>
+                      <Link
+                        href="/admin/shift/create"
+                        _hover={{ bg: "gray.200" }}
+                        p="8px 6px 8px 40px"
+                        borderRadius="4px"
+                      >
+                        <Heading size="xs">シフト作成</Heading>
+                      </Link>
+                    </Flex>
+                  </AccordionPanel>
+                </AccordionItem>
+              </Accordion>
+
+              <Accordion allowToggle>
+                <AccordionItem border="none">
+                  <h2>
+                    <AccordionButton p={0}>
+                      <Flex
+                        as="span"
+                        flex="1"
+                        _hover={{ bg: "gray.200" }}
+                        p="12px"
+                        borderRadius="4px"
+                      >
+                        <Flex gap="10px" w="100%">
+                          <UsersIcon width="18.41px" height="19px" />
+                          <Heading size="sm">隊員情報</Heading>
+                        </Flex>
+                        <AccordionIcon />
+                      </Flex>
+                    </AccordionButton>
+                  </h2>
+                  <AccordionPanel mt="8px" p={0}>
+                    <Flex gap="8px" direction="column">
+                      <Link
+                        href="/admin/member"
+                        _hover={{ bg: "gray.200" }}
+                        p="8px 6px 8px 40px"
+                        borderRadius="4px"
+                      >
+                        <Heading size="xs">隊員一覧</Heading>
+                      </Link>
+                      <Link
+                        href="/admin/member/create"
+                        _hover={{ bg: "gray.200" }}
+                        p="8px 6px 8px 40px"
+                        borderRadius="4px"
+                      >
+                        <Heading size="xs">隊員登録</Heading>
+                      </Link>
+                    </Flex>
+                  </AccordionPanel>
+                </AccordionItem>
+              </Accordion>
+
+              <Accordion allowToggle>
+                <AccordionItem border="none">
+                  <h2>
+                    <AccordionButton p={0}>
+                      <Flex
+                        as="span"
+                        flex="1"
+                        _hover={{ bg: "gray.200" }}
+                        p="12px"
+                        borderRadius="4px"
+                      >
+                        <Flex gap="10px" w="100%">
+                          <Package2Icon width="18.41px" height="19px" />
+                          <Heading size="sm">案件情報</Heading>
+                        </Flex>
+                        <AccordionIcon />
+                      </Flex>
+                    </AccordionButton>
+                  </h2>
+                  <AccordionPanel mt="8px" p={0}>
+                    <Flex gap="8px" direction="column">
+                      <Link
+                        href="/admin/project"
+                        _hover={{ bg: "gray.200" }}
+                        p="8px 6px 8px 40px"
+                        borderRadius="4px"
+                      >
+                        <Heading size="xs">案件一覧</Heading>
+                      </Link>
+                      <Link
+                        href="/admin/project/create"
+                        _hover={{ bg: "gray.200" }}
+                        p="8px 6px 8px 40px"
+                        borderRadius="4px"
+                      >
+                        <Heading size="xs">案件追加</Heading>
+                      </Link>
+                      <Link
+                        href="/admin/project/companyCreate"
+                        _hover={{ bg: "gray.200" }}
+                        p="8px 6px 8px 40px"
+                        borderRadius="4px"
+                      >
+                        <Heading size="xs">会社追加</Heading>
+                      </Link>
+                    </Flex>
+                  </AccordionPanel>
+                </AccordionItem>
+              </Accordion>
+
+              <Link
+                href="/admin/"
+                _hover={{ bg: "gray.200" }}
+                p="12px"
+                borderRadius="4px"
+              >
+                <Flex gap="10px" w="100%">
+                  <ClockIcon width="18.41px" height="19px" />
+                  <Heading size="sm">勤怠情報</Heading>
+                </Flex>
               </Link>
-            </Box>
-            <Box p={0}>
-              <Flex justify='center' align='left' direction='column' mt='80px' gap="26px">
-
-                <Accordion allowToggle>
-                  <AccordionItem border="none">
-                    <h2>
-                      <AccordionButton p={0}>
-                        <Flex as='span' flex='1' _hover={{ bg: "gray.200" }} p='12px' borderRadius="4px">
-                          <Flex gap='10px' w='100%'>
-                            <CalendarIcon width="18.41px" height="19px" />
-                            <Heading size='sm'>シフト</Heading>
-                          </Flex>
-                          <AccordionIcon />
-                        </Flex>
-                      </AccordionButton>
-                    </h2>
-                    <AccordionPanel mt="8px" p={0}>
-                      <Flex gap='8px' direction='column'  >
-                        <Link href='/admin/shift' _hover={{ bg: "gray.200" }} p='8px 6px 8px 40px' borderRadius="4px">
-                          <Heading size='xs'>シフト一覧</Heading>
-                        </Link>
-                        <Link href='/admin/shift/create' _hover={{ bg: "gray.200" }} p='8px 6px 8px 40px' borderRadius="4px">
-                          <Heading size='xs'>シフト作成</Heading>
-                        </Link>
-                      </Flex>
-                    </AccordionPanel>
-                  </AccordionItem>
-                </Accordion>
-
-                <Accordion allowToggle>
-                  <AccordionItem border="none">
-                    <h2>
-                      <AccordionButton p={0}>
-                        <Flex as='span' flex='1' _hover={{ bg: "gray.200" }} p='12px' borderRadius="4px">
-                          <Flex gap='10px' w='100%'>
-                            <UsersIcon width="18.41px" height="19px" />
-                            <Heading size='sm'>隊員情報</Heading>
-                          </Flex>
-                          <AccordionIcon />
-                        </Flex>
-                      </AccordionButton>
-                    </h2>
-                    <AccordionPanel mt="8px" p={0}>
-                      <Flex gap='8px' direction='column'  >
-                        <Link href='/admin/member' _hover={{ bg: "gray.200" }} p='8px 6px 8px 40px' borderRadius="4px">
-                          <Heading size='xs'>隊員一覧</Heading>
-                        </Link>
-                        <Link href='/admin/member/create' _hover={{ bg: "gray.200" }} p='8px 6px 8px 40px' borderRadius="4px">
-                          <Heading size='xs'>隊員登録</Heading>
-                        </Link>
-                      </Flex>
-                    </AccordionPanel>
-                  </AccordionItem>
-                </Accordion>
-
-                <Accordion allowToggle>
-                  <AccordionItem border="none">
-                    <h2>
-                      <AccordionButton p={0}>
-                        <Flex as='span' flex='1' _hover={{ bg: "gray.200" }} p='12px' borderRadius="4px">
-                          <Flex gap='10px' w='100%'>
-                            <Package2Icon width="18.41px" height="19px" />
-                            <Heading size='sm'>案件情報</Heading>
-                          </Flex>
-                          <AccordionIcon />
-                        </Flex>
-                      </AccordionButton>
-                    </h2>
-                    <AccordionPanel mt="8px" p={0}>
-                      <Flex gap='8px' direction='column'  >
-                        <Link href='/admin/project' _hover={{ bg: "gray.200" }} p='8px 6px 8px 40px' borderRadius="4px">
-                          <Heading size='xs'>案件一覧</Heading>
-                        </Link>
-                        <Link href='/admin/project/create' _hover={{ bg: "gray.200" }} p='8px 6px 8px 40px' borderRadius="4px">
-                          <Heading size='xs'>案件追加</Heading>
-                        </Link>
-                      </Flex>
-                    </AccordionPanel>
-                  </AccordionItem>
-                </Accordion>
-
-                <Link href='/admin/' _hover={{ bg: "gray.200" }} p='12px' borderRadius="4px">
-                  <Flex gap='10px' w='100%'>
-                    <ClockIcon width="18.41px" height="19px" />
-                    <Heading size='sm'>勤怠情報</Heading>
-                  </Flex>
-                </Link>
-
-              </Flex>
-            </Box>
+            </Flex>
           </Box>
         </Box>
-      </>
-    )
+      </Box>
+    </>
+  );
 }
 
 function Package2Icon(props: any) {
@@ -137,7 +199,7 @@ function Package2Icon(props: any) {
       <path d="m3 9 2.45-4.9A2 2 0 0 1 7.24 3h9.52a2 2 0 0 1 1.8 1.1L21 9" />
       <path d="M12 3v6" />
     </svg>
-  )
+  );
 }
 
 function UsersIcon(props: any) {
@@ -157,7 +219,7 @@ function UsersIcon(props: any) {
       <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
       <path d="M16 3.13a4 4 0 0 1 0 7.75" />
     </svg>
-  )
+  );
 }
 
 function ClockIcon(props: any) {
@@ -175,7 +237,7 @@ function ClockIcon(props: any) {
       <circle cx="12" cy="12" r="10" />
       <polyline points="12 6 12 12 16 14" />
     </svg>
-  )
+  );
 }
 
 function CalendarIcon(props: any) {
@@ -195,5 +257,5 @@ function CalendarIcon(props: any) {
       <rect width="18" height="18" x="3" y="4" rx="2" />
       <path d="M3 10h18" />
     </svg>
-  )
+  );
 }
