@@ -106,12 +106,35 @@ export default function Navigation() {
                   </AccordionItem>
                 </Accordion>
 
-                <Link href='/admin/' _hover={{ bg: "gray.200" }} p='12px' borderRadius="4px">
-                  <Flex gap='10px' w='100%'>
-                    <ClockIcon width="18.41px" height="19px" />
-                    <Heading size='sm'>勤怠情報</Heading>
-                  </Flex>
-                </Link>
+                <Accordion allowToggle>
+                  <AccordionItem border="none">
+                    <h2>
+                      <AccordionButton p={0}>
+                        <Flex as='span' flex='1' _hover={{ bg: "gray.200" }} p='12px' borderRadius="4px">
+                          <Flex gap='10px' w='100%'>
+                            <ClockIcon width="18.41px" height="19px" />
+                            <Heading size='sm'>勤怠情報</Heading>
+                          </Flex>
+                          <AccordionIcon />
+                        </Flex>
+                      </AccordionButton>
+                    </h2>
+                    <AccordionPanel mt="8px" p={0}>
+                      <Flex gap='8px' direction='column'  >
+                        <Link href='/admin/attendance/day' _hover={{ bg: "gray.200" }} p='8px 6px 8px 40px' borderRadius="4px">
+                          <Heading size='xs'>日次一覧</Heading>
+                        </Link>
+                        <Link href='/admin/attendance/week' _hover={{ bg: "gray.200" }} p='8px 6px 8px 40px' borderRadius="4px">
+                          <Heading size='xs'>週次一覧</Heading>
+                        </Link>
+                        <Link href='/admin/attendance/month' _hover={{ bg: "gray.200" }} p='8px 6px 8px 40px' borderRadius="4px">
+                          <Heading size='xs'>月次一覧</Heading>
+                        </Link>
+                      </Flex>
+                    </AccordionPanel>
+                  </AccordionItem>
+                </Accordion>
+
 
               </Flex>
             </Box>
