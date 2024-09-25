@@ -12,12 +12,30 @@ import {
   Card,
   Accordion,
   AccordionItem,
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalHeader,
+  ModalBody,
+  ModalCloseButton,
 } from "@chakra-ui/react";
 import UserNavigation from "../../components/userNavigation";
 import Bread from "../../components/Breadcrumb";
 import Link from "next/link";
+import { useState } from "react";
 
 export default function Attendance() {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const handleCardClick = () => {
+    setIsModalOpen(true);
+  };
+
+  const handleButtonClick = (action: string) => {
+    console.log(`${action}が選択されました`);
+    setIsModalOpen(false);
+  };
+
   return (
     <>
       <UserNavigation />
@@ -36,8 +54,7 @@ export default function Attendance() {
 
         <Box p="64px 40px">
           <Grid gap="20px" templateColumns="repeat(1, 1fr)">
-            {/* コンポーネント */}
-            <Card p="17px 18px">
+            <Card p="17px 18px" onClick={handleCardClick} cursor="pointer">
               <Text fontSize="sm">7月21日</Text>
               <Flex gap="16px" align="flex-end" pt="4px">
                 <Heading fontSize="md">〇〇警備</Heading>
@@ -56,10 +73,39 @@ export default function Attendance() {
                 <Text fontSize="sm">住所: 千葉県習志野市津田沼1-5-1111</Text>
               </Flex>
             </Card>
-            {/* ここまで */}
           </Grid>
         </Box>
       </Box>
+
+      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader>操作を選択してください</ModalHeader>
+          <ModalCloseButton />
+          <ModalBody>
+            <Flex direction="column" gap="10px">
+              <Button
+                colorScheme="blue"
+                onClick={() => handleButtonClick("上番報告")}
+              >
+                上番報告
+              </Button>
+              <Button
+                colorScheme="green"
+                onClick={() => handleButtonClick("下番報告")}
+              >
+                下番報告
+              </Button>
+              <Button
+                colorScheme="red"
+                onClick={() => handleButtonClick("証明書提出")}
+              >
+                証明書提出
+              </Button>
+            </Flex>
+          </ModalBody>
+        </ModalContent>
+      </Modal>
     </>
   );
 }
