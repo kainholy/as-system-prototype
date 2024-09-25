@@ -69,7 +69,6 @@ export default function day() {
                   <Table variant="simple">
                     <Thead>
                       <Tr>
-                        <Th>日付</Th>
                         <Th>名前</Th>
                         <Th>案件情報</Th>
                         <Th>出社時刻</Th>
@@ -80,7 +79,6 @@ export default function day() {
                     </Thead>
                     <Tbody>
                       <Tr>
-                        <Td>2024/6/1</Td>
                         <Td>大倉 聖哉</Td>
                         <Td>〇〇イベント警備</Td>
                         <Td>9:30</Td>
@@ -89,7 +87,6 @@ export default function day() {
                         <Td>遅刻</Td>
                       </Tr>
                       <Tr>
-                        <Td>2024/6/1</Td>
                         <Td>和田 大輝</Td>
                         <Td>〇〇イベント警備</Td>
                         <Td>9:00</Td>
@@ -98,7 +95,6 @@ export default function day() {
                         <Td>出勤</Td>
                       </Tr>
                       <Tr>
-                        <Td>2024/6/2</Td>
                         <Td>和田 大輝</Td>
                         <Td>××イベント警備</Td>
                         <Td>14:00</Td>
@@ -107,7 +103,6 @@ export default function day() {
                         <Td>出勤</Td>
                       </Tr>
                       <Tr>
-                        <Td>2024/6/2</Td>
                         <Td>山田 太郎</Td>
                         <Td>××イベント警備</Td>
                         <Td>13:00</Td>
