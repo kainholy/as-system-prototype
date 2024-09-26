@@ -25,7 +25,7 @@ export default function Member() {
             <Grid gap='20px' templateColumns='repeat(3, 1fr)' >
                 
                 {/* コンポーネント */}
-                <Card p='17px 18px' onClick={detailOpenFunc}>
+                <Card _hover={{ backgroundColor: 'gray.100', cursor: 'pointer', boxShadow: 'lg' }} transition='.3s' p='17px 18px' onClick={detailOpenFunc}>
                     <Text fontSize='sm'>No. 1001</Text>
                     <Flex gap="16px" align='flex-end' pt='4px'>
                         <Heading fontSize='md'>大倉聖哉</Heading>
@@ -45,7 +45,7 @@ export default function Member() {
                 </Card>
                 {/* ここまで */}
 
-                <Card p='17px 18px' onClick={detailOpenFunc}>
+                <Card _hover={{ backgroundColor: 'gray.100', cursor: 'pointer', boxShadow: 'lg' }} transition='.3s' p='17px 18px' onClick={detailOpenFunc}>
                     <Text fontSize='sm'>No. 1001</Text>
                     <Flex gap="16px" align='flex-end' pt='4px'>
                         <Heading fontSize='md'>大倉聖哉</Heading>
@@ -63,7 +63,7 @@ export default function Member() {
                         <Text fontSize='sm'>雇用形態: 正社員</Text>
                     </Flex>
                 </Card>
-                <Card p='17px 18px' onClick={detailOpenFunc}>
+                <Card _hover={{ backgroundColor: 'gray.100', cursor: 'pointer', boxShadow: 'lg' }} transition='.3s' p='17px 18px' onClick={detailOpenFunc}>
                     <Text fontSize='sm'>No. 1001</Text>
                     <Flex gap="16px" align='flex-end' pt='4px'>
                         <Heading fontSize='md'>大倉聖哉</Heading>
@@ -81,7 +81,7 @@ export default function Member() {
                         <Text fontSize='sm'>雇用形態: 正社員</Text>
                     </Flex>
                 </Card>
-                <Card p='17px 18px' onClick={detailOpenFunc}>
+                <Card _hover={{ backgroundColor: 'gray.100', cursor: 'pointer', boxShadow: 'lg' }} transition='.3s' p='17px 18px' onClick={detailOpenFunc}>
                     <Text fontSize='sm'>No. 1001</Text>
                     <Flex gap="16px" align='flex-end' pt='4px'>
                         <Heading fontSize='md'>大倉聖哉</Heading>

@@ -48,7 +48,7 @@ const DraggableCardEmployee = ({ id, name, qualification }) => {
   };
 
   return (
-    <Card p='8px 10px' ref={setNodeRef} style={style} {...listeners} {...attributes}>
+    <Card _hover={{ backgroundColor: 'gray.100', cursor: 'pointer', boxShadow: 'md' }} p='8px 10px' ref={setNodeRef} style={style} {...listeners} {...attributes}>
       <Flex gap='8px' align='left'>
         {
           qualification === 'なし' ? null : (
@@ -74,7 +74,7 @@ const DraggableCardProject = ({ id, name, qualification }) => {
   };
 
   return (
-    <Card p='8px 10px' ref={setNodeRef} style={style} {...listeners} {...attributes}>
+    <Card _hover={{ backgroundColor: 'gray.100', cursor: 'pointer', boxShadow: 'md' }} p='8px 10px' ref={setNodeRef} style={style} {...listeners} {...attributes}>
       <Flex gap='8px' align='left'>
         {
           qualification === 'なし' ? null : (
@@ -95,7 +95,7 @@ const DroppableAreaEmployee = ({ id, items }) => {
   });
 
   return (
-    <Box backgroundColor='gray.100' p='20px' position='fixed' top='74px' w='18vw'>
+    <Box backgroundColor='gray.200' p='20px' position='fixed' top='74px' w='18vw'>
       <Heading fontSize='lg'>隊員</Heading>
       <Flex ref={setNodeRef} direction='column' gap="12px" mt='24px'>
         {items.map((item) => (
@@ -112,7 +112,7 @@ const DroppableAreaProject = ({ id, items, project, isActive }) => {
   });
 
   return (
-    <Box backgroundColor={isActive ? 'blue.100' : 'gray.100'} p='20px'>
+    <Box _hover={{ opacity: '1', cursor: 'pointer' }} opacity={isActive ? '1' : '.5'} transition='.1s' backgroundColor='gray.200' p='20px'>
       <Flex gap='8px' align='flex-end'>
         <Heading fontSize='md'>{project.company}</Heading>
         <Heading fontSize='md'>/</Heading>

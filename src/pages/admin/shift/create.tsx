@@ -58,7 +58,7 @@ export default function Page() {
       ]
     }
   ]
-  const [activeId, setActiveId] = useState(false);
+  const [activeId, setActiveId] = useState('1');
   const toggleActive = (id) => {
     setActiveId(id);
   };
@@ -67,7 +67,7 @@ export default function Page() {
       <Navigation />
       <Box w='calc(100% - 220px)' margin='0 0 0 auto'>
         <Bread second="シフト" third="シフト作成" />
-        <Flex alignItems="center" justifyContent="center" direction="column" gap="24px" p='20px 40px 0'>
+        <Flex alignItems="center" justifyContent="center" direction="column" gap="24px" p='20px 2% 0'>
           {data.map((item) => (
             <Box key={item.id} w='100%' onClick={() => toggleActive(item.id)}>
               <DropTest project={item.project} employeesList={item.employeesList} projectList={item.projectList} isActive={item.id === activeId} />
