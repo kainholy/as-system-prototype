@@ -1,6 +1,6 @@
 import Bread from "@/pages/components/Breadcrumb";
 import Navigation from "@/pages/components/Navigation";
-import { Box, Button, Flex, Heading } from "@chakra-ui/react";
+import { Box, Button, Flex, Heading, Table, TableContainer, Tbody, Td, Th, Thead, Tr } from "@chakra-ui/react";
 import Link from "next/link";
 import { useState } from "react";
 
@@ -69,6 +69,58 @@ export default function week() {
                         </Link>
                     </Flex>
                 </Flex>
+                <TableContainer m='0 40px'>
+                  <Table variant="simple">
+                    <Thead>
+                      <Tr>
+                        <Th>名前</Th>
+                        <Th>合計勤務時間</Th>
+                        <Th>月曜日</Th>
+                        <Th>火曜日</Th>
+                        <Th>水曜日</Th>
+                        <Th>木曜日</Th>
+                        <Th>金曜日</Th>
+                        <Th>土曜日</Th>
+                        <Th>日曜日</Th>
+                      </Tr>
+                    </Thead>
+                    <Tbody>
+                      <Tr>
+                        <Td>大倉 聖哉</Td>
+                        <Td>44時間30分</Td>
+                        <Td>9:30 - 18:00 遅刻</Td>
+                        <Td>—</Td>
+                        <Td>9:00 - 18:00 出勤</Td>
+                        <Td>9:00 - 18:00 出勤</Td>
+                        <Td>9:00 - 18:00 出勤</Td>
+                        <Td>9:00 - 18:00 出勤</Td>
+                        <Td>—</Td>
+                      </Tr>
+                      <Tr>
+                        <Td>和田 大輝</Td>
+                        <Td>51時間00分</Td>
+                        <Td>9:00 - 18:00 出勤</Td>
+                        <Td>14:00 - 20:00 出勤</Td>
+                        <Td>9:00 - 18:00 出勤</Td>
+                        <Td>9:00 - 18:00 出勤</Td>
+                        <Td>9:00 - 18:00 出勤</Td>
+                        <Td>9:00 - 18:00 出勤</Td>
+                        <Td>—</Td>
+                      </Tr>
+                      <Tr>
+                        <Td>山田 太郎</Td>
+                        <Td>44時間00分</Td>
+                        <Td>—</Td>
+                        <Td>13:00 - 21:00 出勤</Td>
+                        <Td>9:00 - 18:00 出勤</Td>
+                        <Td>9:00 - 18:00 出勤</Td>
+                        <Td>9:00 - 18:00 出勤</Td>
+                        <Td>9:00 - 18:00 出勤</Td>
+                        <Td>—</Td>
+                      </Tr>
+                    </Tbody>
+                  </Table>
+                </TableContainer>
             </Box>
         </>
     );

@@ -48,7 +48,7 @@ const DraggableCardEmployee = ({ id, name, qualification }) => {
   };
 
   return (
-    <Card p='8px 10px' ref={setNodeRef} style={style} {...listeners} {...attributes}>
+    <Card _hover={{ backgroundColor: 'gray.100', cursor: 'pointer', boxShadow: 'md' }} p='8px 10px' ref={setNodeRef} style={style} {...listeners} {...attributes}>
       <Flex gap='8px' align='left'>
         {
           qualification === 'なし' ? null : (
@@ -74,7 +74,7 @@ const DraggableCardProject = ({ id, name, qualification }) => {
   };
 
   return (
-    <Card p='8px 10px' ref={setNodeRef} style={style} {...listeners} {...attributes}>
+    <Card _hover={{ backgroundColor: 'gray.100', cursor: 'pointer', boxShadow: 'md' }} p='8px 10px' ref={setNodeRef} style={style} {...listeners} {...attributes}>
       <Flex gap='8px' align='left'>
         {
           qualification === 'なし' ? null : (
@@ -95,7 +95,7 @@ const DroppableAreaEmployee = ({ id, items }) => {
   });
 
   return (
-    <Box backgroundColor='gray.100' p='20px' position='fixed' top='74px' w='18vw'>
+    <Box backgroundColor='gray.200' p='20px' position='fixed' top='74px' w='18vw'>
       <Heading fontSize='lg'>隊員</Heading>
       <Flex ref={setNodeRef} direction='column' gap="12px" mt='24px'>
         {items.map((item) => (
@@ -112,13 +112,42 @@ const DroppableAreaProject = ({ id, items, project, isActive }) => {
   });
 
   return (
-    <Box backgroundColor={isActive ? 'blue.100' : 'gray.100'} p='20px'>
+    <Box _hover={{ opacity: '1', cursor: 'pointer' }} opacity={isActive ? '1' : '.5'} transition='.1s' backgroundColor='gray.200' p='20px'>
       <Flex gap='8px' align='flex-end'>
         <Heading fontSize='md'>{project.company}</Heading>
         <Heading fontSize='md'>/</Heading>
         <Heading fontSize='md'>{project.name}</Heading>
       </Flex>
-      <Text fontSize='sm'>Tel: {project.tel}</Text>
+      <Flex gap='8px' align='flex-end'>
+        <Text fontSize='sm'>{project.managerName}</Text>
+        <Text fontSize='sm'>{project.managerTel}</Text>
+      </Flex>
+      <Flex mt='8px' gap='20px' align='center'>
+        <Text fontSize='sm'>🕰️</Text>
+        <Flex gap='8px' align='center'>
+          <Text fontSize='sm'>{project.startTime} ~ {project.endTime}</Text>
+          （
+          <Badge variant='outline' colorScheme='orange' p='0 5px'>
+            <Text p='1px 7px'>日勤(平日)</Text>
+          </Badge>
+          ）
+        </Flex>
+      </Flex>
+      <Flex gap='20px' align='center'>
+        <Text fontSize='sm'>👮‍♀️</Text>
+        <Flex gap='8px' align='center'>
+          <Text fontSize='sm'>{project.numberOfStaff}</Text>
+          （
+          <Flex gap='4px' align='center'>
+            {project.requiredQualifications.map((qualification) => (
+              <Badge key={qualification.name} variant='outline' colorScheme='blue' p='0 5px'>
+                <Text p='1px 7px'>{qualification.name} {qualification.number}</Text>
+              </Badge>
+            ))}
+          </Flex>
+          ）
+        </Flex>
+      </Flex>
       <Flex ref={setNodeRef} gap="12px" mt='24px' wrap='wrap'>
         {items.map((item) => (
           <DraggableCardProject key={item.id} id={item.id} name={item.name} qualification={item.qualification} />

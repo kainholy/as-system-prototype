@@ -6,13 +6,39 @@ import { useState } from 'react';
 
 
 export default function Page() {
+  function getDaysInMonth(month: number) {
+    const daysInMonth = [];
+    const year = 2024;
+  
+    // 指定した月の日数を取得する（次の月の0日目＝その月の最終日）
+    const lastDay = new Date(year, month, 0).getDate();
+
+    for (let day = 1; day <= lastDay; day++) {
+      const formattedDay = String(day); // 日付をフォーマット
+      daysInMonth.push(`${year}年${String(month)}月${formattedDay}日`);
+    }
+    return daysInMonth;
+  }
+  
+  console.log(getDaysInMonth(7)); // 7月の日数を取得
+  console.log(getDaysInMonth(8)); // 8月の日数を取得
+  console.log(getDaysInMonth(9)); // 9月の日数を取得
   const data = [
     {
       id: '1',
       project: {
         company: '〇〇会社',
         name: 'システム開発',
-        tel: '090-6703-6735',
+        managerName: 'ハリソン山中様',
+        managerTel: '090-6703-6735',
+        date: '2024年7月20日',
+        startTime: '10:00',
+        endTime: '17:00',
+        numberOfStaff: '5人',
+        requiredQualifications: [
+          { name: '2級', number: '1名' },
+          { name: '3級', number: '2名' }
+        ]
       },
       employeesList: [
         { id: '1', name: '大倉 聖哉', qualification: '2級' },
@@ -30,7 +56,16 @@ export default function Page() {
       project: {
         company: '△△会社',
         name: 'システム開発',
-        tel: '090-6703-6735',
+        managerName: 'ハリソン山中様',
+        managerTel: '090-6703-6735',
+        date: '2024年7月15日',
+        startTime: '10:00',
+        endTime: '17:00',
+        numberOfStaff: '5人',
+        requiredQualifications: [
+          { name: '2級', number: '1名' },
+          { name: '3級', number: '2名' }
+        ]
       },
       employeesList: [
         { id: '1', name: '大倉 聖哉2', qualification: '2級' },
@@ -47,7 +82,16 @@ export default function Page() {
       project: {
         company: '□□会社',
         name: 'システム開発',
-        tel: '090-6703-6735',
+        managerName: 'ハリソン山中様',
+        managerTel: '090-6703-6735',
+        date: '2024年7月31日',
+        startTime: '10:00',
+        endTime: '17:00',
+        numberOfStaff: '5人',
+        requiredQualifications: [
+          { name: '2級', number: '1名' },
+          { name: '3級', number: '2名' }
+        ]
       },
       employeesList: [
         { id: '1', name: '大倉 聖哉3', qualification: '2級' },
@@ -58,7 +102,8 @@ export default function Page() {
       ]
     }
   ]
-  const [activeId, setActiveId] = useState(false);
+  const [activeId, setActiveId] = useState('1');
+  const daysInJuly = getDaysInMonth(7);
   const toggleActive = (id) => {
     setActiveId(id);
   };
@@ -67,12 +112,37 @@ export default function Page() {
       <Navigation />
       <Box w='calc(100% - 220px)' margin='0 0 0 auto'>
         <Bread second="シフト" third="シフト作成" />
-        <Flex alignItems="center" justifyContent="center" direction="column" gap="24px" p='20px 40px 0'>
-          {data.map((item) => (
-            <Box key={item.id} w='100%' onClick={() => toggleActive(item.id)}>
-              <DropTest project={item.project} employeesList={item.employeesList} projectList={item.projectList} isActive={item.id === activeId} />
-            </Box>
-          ))}
+        <Flex justifyContent="center" direction="column" gap="24px" p='20px 2% 0'>
+          {daysInJuly.map((day) => {
+            // その日付に該当するプロジェクトをフィルタリング
+            const projectsForDay = data.filter(item => item.project.date === day);
+
+            // 該当するプロジェクトがない場合はその日付をスキップ
+            if (projectsForDay.length === 0) {
+              return null;
+            }
+
+            return (
+              <div key={day}>
+                {/* 日付ごとのHeading */}
+                <Heading fontSize='xl' mb="16px">{day}</Heading>
+
+                {/* 日付に対応するプロジェクトリスト */}
+                <Flex w='100%' direction="column" gap="24px">
+                  {projectsForDay.map((item) => (
+                    <Box key={item.id} w='100%' onClick={() => toggleActive(item.id)}>
+                      <DropTest 
+                        project={item.project} 
+                        employeesList={item.employeesList} 
+                        projectList={item.projectList} 
+                        isActive={item.id === activeId} 
+                      />
+                    </Box>
+                  ))}
+                </Flex>
+              </div>
+            );
+          })}
         </Flex>
       </Box>
     </>
