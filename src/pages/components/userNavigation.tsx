@@ -57,15 +57,7 @@ export default function userNavigation() {
                         p="8px 6px 8px 40px"
                         borderRadius="4px"
                       >
-                        <Heading size="xs">シフト一覧</Heading>
-                      </Link>
-                      <Link
-                        href="/user/shift/submit"
-                        _hover={{ bg: "gray.200" }}
-                        p="8px 6px 8px 40px"
-                        borderRadius="4px"
-                      >
-                        <Heading size="xs">シフト提出</Heading>
+                        <Heading size="xs">シフト管理</Heading>
                       </Link>
                     </Flex>
                   </AccordionPanel>
@@ -123,14 +115,6 @@ export default function userNavigation() {
                         borderRadius="4px"
                       >
                         <Heading size="xs">個人情報確認</Heading>
-                      </Link>
-                      <Link
-                        href="/user/profile/edit"
-                        _hover={{ bg: "gray.200" }}
-                        p="8px 6px 8px 40px"
-                        borderRadius="4px"
-                      >
-                        <Heading size="xs">個人情報編集</Heading>
                       </Link>
                     </Flex>
                   </AccordionPanel>
