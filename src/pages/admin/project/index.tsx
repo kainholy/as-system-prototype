@@ -1,4 +1,3 @@
-'use client'
 import { Box, Flex, Card, CardHeader, CardBody, CardFooter, Text, Heading, Badge, Grid  } from '@chakra-ui/react'
 import Navigation from '../../components/Navigation'
 import Bread from '../../components/Breadcrumb'
