@@ -124,14 +124,6 @@ export default function userNavigation() {
                       >
                         <Heading size="xs">個人情報確認</Heading>
                       </Link>
-                      <Link
-                        href="/user/profile/edit"
-                        _hover={{ bg: "gray.200" }}
-                        p="8px 6px 8px 40px"
-                        borderRadius="4px"
-                      >
-                        <Heading size="xs">個人情報編集</Heading>
-                      </Link>
                     </Flex>
                   </AccordionPanel>
                 </AccordionItem>
