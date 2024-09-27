@@ -105,6 +105,18 @@ function checkProfile() {
             <Heading size="sm">男</Heading>
           </Flex>
 
+          {/* 住所 */}
+          <Flex direction="column" gap="8px">
+            <Text fontSize="sm" color="gray.800">
+              郵便番号
+            </Text>
+            <Heading size="sm">274-0987</Heading>
+            <Text fontSize="sm" color="gray.800">
+              住所
+            </Text>
+            <Heading size="sm">東京都港区高輪1-2-3</Heading>
+          </Flex>
+
           {/* 電話番号 */}
           <Flex direction="column" gap="8px">
             <Text fontSize="sm" color="gray.800">
