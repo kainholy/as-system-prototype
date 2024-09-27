@@ -60,6 +60,21 @@ export default function UserEdit({
           隊員情報編集
         </Heading>
 
+        <Flex flex="1" gap="40px">
+          <FormControl isRequired>
+            <FormLabel fontSize="sm" color="gray.800">
+              郵便番号
+            </FormLabel>
+            <Input type="name" placeholder="273-0000" />
+          </FormControl>
+          <FormControl isRequired>
+            <FormLabel fontSize="sm" color="gray.800">
+              住所
+            </FormLabel>
+            <Input type="name" placeholder="千葉県千葉市千葉区1111-1111" />
+          </FormControl>
+        </Flex>
+
         <FormControl>
           <FormLabel fontSize="sm" color="gray.800">
             資格情報

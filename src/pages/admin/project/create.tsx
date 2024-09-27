@@ -71,6 +71,20 @@ function MemberCreate() {
             <Input type="tel" placeholder="09000000000" />
           </FormControl>
 
+          <FormControl isRequired>
+            <FormLabel fontSize="sm" color="gray.800">
+              現場郵便番号
+            </FormLabel>
+            <Input type="name" placeholder="274-0000" />
+          </FormControl>
+
+          <FormControl isRequired>
+            <FormLabel fontSize="sm" color="gray.800">
+              現場住所
+            </FormLabel>
+            <Input type="name" placeholder="千葉県習志野市津田沼11-11" />
+          </FormControl>
+
           <Flex flex="1" gap="40px">
             <FormControl>
               <FormLabel fontSize="sm" color="gray.800">
