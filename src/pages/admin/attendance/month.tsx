@@ -30,23 +30,23 @@ export default function month() {
                 <Bread second="勤怠情報" third="月次一覧" />
                 <Flex alignItems="center" gap="20px" direction="column" p='64px 40px'>
                     <Flex alignItems="center" justifyContent='center' w='100%' gap="32px" position="relative">
-                        <Button
-                            colorScheme='gray'
-                            type='submit'
-                            size='sm'
-                            onClick={minusFunc}
-                        >
-                        ←
-                        </Button>
-                        <Heading fontSize='md'>{ year }年 { month }月</Heading>
-                        <Button
-                            colorScheme='gray'
-                            type='submit'
-                            size='sm'
-                            onClick={addFunc}
-                            >
-                            →
-                        </Button>
+                      <Button
+                          colorScheme='gray'
+                          type='submit'
+                          size='sm'
+                          onClick={minusFunc}
+                      >
+                      ←
+                      </Button>
+                      <Heading fontSize='md'>{ year }年 { month }月</Heading>
+                      <Button
+                          colorScheme='gray'
+                          type='submit'
+                          size='sm'
+                          onClick={addFunc}
+                          >
+                          →
+                      </Button>
                     </Flex>
                     <Flex gap="15px">
                         <Link href='/admin/attendance/day'>

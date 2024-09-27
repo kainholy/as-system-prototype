@@ -68,10 +68,10 @@ function EditCompany({ setEditOpen }) {
             </FormControl>
 
             <Flex gap="20px" justifyContent='right'>
-              <Button mt={4} pl={12} pr={12} colorScheme="blue" type="submit">
+              <Button onClick={editCloseFunc} mt={4} pl={12} pr={12} colorScheme="blue" type="submit">
                 更新
               </Button>
-              <Button mt={4} pl={12} pr={12} colorScheme="red" type="submit">
+              <Button onClick={editCloseFunc} mt={4} pl={12} pr={12} colorScheme="red" type="submit">
                 削除
               </Button>
             </Flex>
