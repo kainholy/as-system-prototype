@@ -151,8 +151,42 @@ export default function Navigation() {
                       >
                         <Heading size="xs">案件追加</Heading>
                       </Link>
+                    </Flex>
+                  </AccordionPanel>
+                </AccordionItem>
+              </Accordion>
+
+              <Accordion allowToggle>
+                <AccordionItem border="none">
+                  <h2>
+                    <AccordionButton p={0}>
+                      <Flex
+                        as="span"
+                        flex="1"
+                        _hover={{ bg: "gray.200" }}
+                        p="12px"
+                        borderRadius="4px"
+                      >
+                        <Flex gap="10px" w="100%">
+                          <CompanyIcon width="18.41px" height="19px" />
+                          <Heading size="sm">会社情報</Heading>
+                        </Flex>
+                        <AccordionIcon />
+                      </Flex>
+                    </AccordionButton>
+                  </h2>
+                  <AccordionPanel mt="8px" p={0}>
+                    <Flex gap="8px" direction="column">
                       <Link
-                        href="/admin/project/companyCreate"
+                        href="/admin/company/"
+                        _hover={{ bg: "gray.200" }}
+                        p="8px 6px 8px 40px"
+                        borderRadius="4px"
+                      >
+                        <Heading size="xs">会社一覧</Heading>
+                      </Link>
+                      <Link
+                        href="/admin/company/create"
                         _hover={{ bg: "gray.200" }}
                         p="8px 6px 8px 40px"
                         borderRadius="4px"
@@ -208,6 +242,40 @@ export default function Navigation() {
                         borderRadius="4px"
                       >
                         <Heading size="xs">月次一覧</Heading>
+                      </Link>
+                    </Flex>
+                  </AccordionPanel>
+                </AccordionItem>
+              </Accordion>
+
+              <Accordion allowToggle>
+                <AccordionItem border="none">
+                  <h2>
+                    <AccordionButton p={0}>
+                      <Flex
+                        as="span"
+                        flex="1"
+                        _hover={{ bg: "gray.200" }}
+                        p="12px"
+                        borderRadius="4px"
+                      >
+                        <Flex gap="10px" w="100%">
+                          <SettingsIcon width="18.41px" height="19px" />
+                          <Heading size="sm">設定</Heading>
+                        </Flex>
+                        <AccordionIcon />
+                      </Flex>
+                    </AccordionButton>
+                  </h2>
+                  <AccordionPanel mt="8px" p={0}>
+                    <Flex gap="8px" direction="column">
+                      <Link
+                        href="/admin/settings/qualification"
+                        _hover={{ bg: "gray.200" }}
+                        p="8px 6px 8px 40px"
+                        borderRadius="4px"
+                      >
+                        <Heading size="xs">資格情報</Heading>
                       </Link>
                     </Flex>
                   </AccordionPanel>
@@ -294,6 +362,45 @@ function CalendarIcon(props: any) {
       <path d="M16 2v4" />
       <rect width="18" height="18" x="3" y="4" rx="2" />
       <path d="M3 10h18" />
+    </svg>
+  );
+}
+function SettingsIcon(props: any) {
+  return (
+    <svg
+      {...props}
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <circle cx="12" cy="12" r="3" />
+      <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2h-1.2a2 2 0 0 1-2-2v-.11a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2v-1.2a2 2 0 0 1 2-2h.11a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2h1.2a2 2 0 0 1 2 2v.11a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2v1.2a2 2 0 0 1-2 2h-.11a1.65 1.65 0 0 0-1.51 1z" />
+    </svg>
+  );
+}
+function CompanyIcon(props: any) {
+  return (
+    <svg
+      {...props}
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      {/* ビルの外枠 */}
+      <rect x="3" y="2" width="18" height="30" rx="2" ry="2" />
+
+      {/* ビルの窓 左列 */}
+      <rect x="6.5" y="6" width="11" height="4" />
+      <rect x="6.5" y="13" width="11" height="4" />
+
     </svg>
   );
 }

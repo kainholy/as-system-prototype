@@ -20,9 +20,6 @@ export default function Page() {
     return daysInMonth;
   }
   
-  console.log(getDaysInMonth(7)); // 7月の日数を取得
-  console.log(getDaysInMonth(8)); // 8月の日数を取得
-  console.log(getDaysInMonth(9)); // 9月の日数を取得
   const data = [
     {
       id: '1',

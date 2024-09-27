@@ -11,12 +11,12 @@ import {
 import Navigation from "../../components/Navigation";
 import Bread from "../../components/Breadcrumb";
 
-function MemberCreate() {
+function CompanyCreate() {
   return (
     <>
       <Navigation />
       <Box w="calc(100% - 220px)" margin="0 0 0 auto">
-        <Bread />
+        <Bread second='会社情報' third='会社追加' />
         <Flex
           w="60%"
           maxW="600px"
@@ -25,7 +25,6 @@ function MemberCreate() {
           gap="24px"
         >
           {/* 会社情報 */}
-          <form>
             <FormControl isRequired>
               <FormLabel fontSize="sm" color="gray.800">
                 会社名
@@ -65,11 +64,10 @@ function MemberCreate() {
             <Button mt={4} colorScheme="blue" type="submit">
               追加
             </Button>
-          </form>
         </Flex>
       </Box>
     </>
   );
 }
 
-export default MemberCreate;
+export default CompanyCreate;
