@@ -4,25 +4,102 @@ import {
   Flex,
   FormControl,
   FormLabel,
-  HStack,
   Input,
-  NumberInput,
-  NumberInputField,
-  NumberInputStepper,
-  NumberIncrementStepper,
-  NumberDecrementStepper,
-  Radio,
-  RadioGroup,
-  Select,
   Heading,
   IconButton,
 } from "@chakra-ui/react";
 import { CloseIcon } from "@chakra-ui/icons";
+import { useEffect, useState } from "react";
+import axios from "axios";
 
-export default function EditMember({ setEditOpen }) {
+type EmergencyContact = {
+  name: string;
+  relationship: string;
+  phoneNumber: string;
+};
+
+type Member = {
+  id: number;
+  staffId: string;
+  name: string;
+  romanname: string;
+  address: string;
+  postcode: string;
+  phonenumber: string;
+  email: string;
+  birthday: Date;
+  hiredate: string;
+  role: string;
+  emergencyContacts: EmergencyContact[];
+};
+
+type EditMemberProps = {
+  setEditOpen: (isOpen: boolean) => void;
+  memberId: number;
+};
+
+export default function EditMember({ setEditOpen, memberId }: EditMemberProps) {
+  const [editedMember, setEditedMember] = useState<Member | null>(null);
+
+  useEffect(() => {
+    // 編集対象のメンバー情報を取得
+    const fetchMember = async () => {
+      try {
+        const response = await axios.get(
+          `http://localhost:4000/members/${memberId}`
+        );
+        setEditedMember(response.data);
+      } catch (error) {
+        console.error("メンバー情報の取得中にエラーが発生しました:", error);
+      }
+    };
+
+    fetchMember();
+  }, [memberId]);
+
   const editCloseFunc = () => {
     setEditOpen(false); // モーダルを閉じる関数
   };
+
+  const handleInputChange = (field: string, value: any) => {
+    setEditedMember((prev) => (prev ? { ...prev, [field]: value } : prev));
+  };
+
+  const handleUpdate = async () => {
+    if (editedMember) {
+      try {
+        await axios.put(
+          `http://localhost:4000/members/${editedMember.id}`,
+          editedMember
+        );
+        alert("隊員情報が更新されました。");
+        editCloseFunc();
+        window.location.reload(); // ページをリロード
+      } catch (error) {
+        console.error("更新中にエラーが発生しました:", error);
+        alert("更新中にエラーが発生しました。");
+      }
+    }
+  };
+
+  const handleDelete = async () => {
+    if (editedMember) {
+      try {
+        await axios.delete(`http://localhost:4000/members/${editedMember.id}`);
+        alert("隊員情報が削除されました。");
+        editCloseFunc();
+        window.location.reload(); // ページをリロード
+      } catch (error) {
+        console.error("削除中にエラーが発生しました:", error);
+        alert("削除中にエラーが発生しました。");
+      }
+    }
+  };
+
+  if (!editedMember) {
+    return <div>Loading...</div>; // メンバー情報を取得中に表示
+  }
+
   return (
     <Box
       position="absolute"
@@ -60,13 +137,11 @@ export default function EditMember({ setEditOpen }) {
           <FormLabel fontSize="sm" color="gray.800">
             隊員番号
           </FormLabel>
-          <NumberInput max={9999} min={1000}>
-            <NumberInputField />
-            <NumberInputStepper>
-              <NumberIncrementStepper />
-              <NumberDecrementStepper />
-            </NumberInputStepper>
-          </NumberInput>
+          <Input
+            type="text"
+            value={editedMember.staffId}
+            onChange={(e) => handleInputChange("staffId", e.target.value)}
+          />
         </FormControl>
 
         <Flex flex="1" gap="40px">
@@ -74,29 +149,32 @@ export default function EditMember({ setEditOpen }) {
             <FormLabel fontSize="sm" color="gray.800">
               性
             </FormLabel>
-            <Input type="name" placeholder="山田" />
+            <Input
+              type="text"
+              value={editedMember.name.split(" ")[0]}
+              onChange={(e) =>
+                handleInputChange(
+                  "name",
+                  `${e.target.value} ${editedMember.name.split(" ")[1] || ""}`
+                )
+              }
+            />
           </FormControl>
 
           <FormControl isRequired>
             <FormLabel fontSize="sm" color="gray.800">
               名
             </FormLabel>
-            <Input type="name" placeholder="太郎" />
-          </FormControl>
-        </Flex>
-
-        <Flex flex="1" gap="40px">
-          <FormControl isRequired>
-            <FormLabel fontSize="sm" color="gray.800">
-              性(ローマ字)
-            </FormLabel>
-            <Input type="name" placeholder="Yamada" />
-          </FormControl>
-          <FormControl isRequired>
-            <FormLabel fontSize="sm" color="gray.800">
-              名(ローマ字)
-            </FormLabel>
-            <Input type="name" placeholder="Taro" />
+            <Input
+              type="text"
+              value={editedMember.name.split(" ")[1] || ""}
+              onChange={(e) =>
+                handleInputChange(
+                  "name",
+                  `${editedMember.name.split(" ")[0]} ${e.target.value}`
+                )
+              }
+            />
           </FormControl>
         </Flex>
 
@@ -104,20 +182,15 @@ export default function EditMember({ setEditOpen }) {
           <FormLabel fontSize="sm" color="gray.800">
             生年月日
           </FormLabel>
-          <Input type="date" />
-        </FormControl>
-
-        <FormControl isRequired as="fieldset">
-          <FormLabel as="legend" fontSize="sm" color="gray.800">
-            性別
-          </FormLabel>
-          <RadioGroup defaultValue="男">
-            <HStack spacing="24px">
-              <Radio value="男">男</Radio>
-              <Radio value="女">女</Radio>
-              <Radio value="その他">その他</Radio>
-            </HStack>
-          </RadioGroup>
+          <Input
+            type="date"
+            value={
+              editedMember.birthday instanceof Date
+                ? editedMember.birthday.toISOString().split("T")[0]
+                : editedMember.birthday
+            }
+            onChange={(e) => handleInputChange("birthday", e.target.value)}
+          />
         </FormControl>
 
         <Flex flex="1" gap="40px">
@@ -125,13 +198,21 @@ export default function EditMember({ setEditOpen }) {
             <FormLabel fontSize="sm" color="gray.800">
               郵便番号
             </FormLabel>
-            <Input type="name" placeholder="273-0000" />
+            <Input
+              type="text"
+              value={editedMember.postcode}
+              onChange={(e) => handleInputChange("postcode", e.target.value)}
+            />
           </FormControl>
           <FormControl isRequired>
             <FormLabel fontSize="sm" color="gray.800">
               住所
             </FormLabel>
-            <Input type="name" placeholder="千葉県千葉市千葉区1111-1111" />
+            <Input
+              type="text"
+              value={editedMember.address}
+              onChange={(e) => handleInputChange("address", e.target.value)}
+            />
           </FormControl>
         </Flex>
 
@@ -139,92 +220,41 @@ export default function EditMember({ setEditOpen }) {
           <FormLabel fontSize="sm" color="gray.800">
             電話番号
           </FormLabel>
-          <Input type="tel" placeholder="09000000000" />
+          <Input
+            type="tel"
+            value={editedMember.phonenumber}
+            onChange={(e) => handleInputChange("phonenumber", e.target.value)}
+          />
         </FormControl>
 
         <FormControl isRequired>
           <FormLabel fontSize="sm" color="gray.800">
             メールアドレス
           </FormLabel>
-          <Input type="email" placeholder="template@gmail.com" />
-        </FormControl>
-
-        <FormControl isRequired>
-          <FormLabel fontSize="sm" color="gray.800">
-            雇用開始日
-          </FormLabel>
-          <Input type="date" />
-        </FormControl>
-
-        <Flex flex="1" gap="40px">
-          <FormControl isRequired>
-            <FormLabel fontSize="sm" color="gray.800">
-              緊急連絡先
-            </FormLabel>
-            <Input type="tel" placeholder="09000000000" />
-          </FormControl>
-
-          <FormControl isRequired>
-            <FormLabel fontSize="sm" color="gray.800">
-              属柄
-            </FormLabel>
-            <Input type="name" placeholder="父" />
-          </FormControl>
-        </Flex>
-
-        <FormControl>
-          <FormLabel fontSize="sm" color="gray.800">
-            資格情報
-          </FormLabel>
-          <Select placeholder="なし">
-            <option>なし</option>
-            <option>1級</option>
-            <option>2級</option>
-            <option>3級</option>
-          </Select>
-        </FormControl>
-
-        <FormControl>
-          <FormLabel fontSize="sm" color="gray.800">
-            NG隊員リスト
-          </FormLabel>
-          <Select placeholder="なし">
-            <option>なし</option>
-            <option>山田 太郎</option>
-            <option>大倉 聖哉</option>
-            <option>山田 花子</option>
-          </Select>
-        </FormControl>
-
-        <FormControl>
-          <FormLabel fontSize="sm" color="gray.800">
-            出禁情報
-          </FormLabel>
-          <Select placeholder="なし">
-            <option>なし</option>
-            <option>〇〇会社</option>
-            <option>××会社</option>
-            <option>△△会社</option>
-          </Select>
-        </FormControl>
-
-        <FormControl>
-          <FormLabel fontSize="sm" color="gray.800">
-            自主出禁
-          </FormLabel>
-          <Select placeholder="なし">
-            <option>なし</option>
-            <option>〇〇会社</option>
-            <option>××会社</option>
-            <option>△△会社</option>
-          </Select>
+          <Input
+            type="email"
+            value={editedMember.email}
+            onChange={(e) => handleInputChange("email", e.target.value)}
+          />
         </FormControl>
 
         <Flex gap="20px" justifyContent="right">
-          <Button mt={4} pl={12} pr={12} colorScheme="blue" type="submit">
+          <Button
+            mt={4}
+            pl={12}
+            pr={12}
+            colorScheme="blue"
+            onClick={handleUpdate}
+          >
             更新
           </Button>
-          <Button mt={4} pl={12} pr={12} colorScheme="red" type="submit">
+          <Button
+            mt={4}
+            pl={12}
+            pr={12}
+            colorScheme="red"
+            onClick={handleDelete}
+          >
             削除
           </Button>
         </Flex>
