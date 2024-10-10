@@ -11,9 +11,33 @@ import {
   Heading,
   Text,
 } from "@chakra-ui/react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import axios from "axios";
+
+type Company = {
+  companyName: string;
+  postcode: string;
+  address: string;
+  email: string;
+  phoneNumber: string;
+};
 
 export default function Company() {
+  const [company, setCompany] = useState<Company[]>([]);
+
+  useEffect(() => {
+    const fetchCompany = async () => {
+      try {
+        const response = await axios.get("http://localhost:4000/companies");
+        setCompany(response.data);
+      } catch (error) {
+        console.error("会社情報の取得中にエラーが発生しました:", error);
+      }
+    };
+
+    fetchCompany();
+  }, []);
+
   const [editOpen, setEditOpen] = useState(false);
   const editCompany = () => {
     setEditOpen(true);
@@ -43,116 +67,29 @@ export default function Company() {
           direction="column"
           gap="24px"
         >
-          <Card
-            _hover={{
-              backgroundColor: "gray.100",
-              cursor: "pointer",
-              boxShadow: "lg",
-            }}
-            transition=".3s"
-            p="17px 18px"
-            onClick={projectOpenFunc}
-          >
-            <Flex gap="16px" align="center" pt="4px">
-              <Heading fontSize="md">〇〇会社</Heading>
-            </Flex>
-            <Flex gap="4px" direction="column" p="10px 0 0">
-              <Text fontSize="xs">郵便番号: 274-0000</Text>
-              <Text fontSize="xs">住所: 千葉県習志野市津田沼1-5-1111</Text>
-              <Text fontSize="xs">
-                メールアドレス: ookuraseiya0506@gmail.com
-              </Text>
-              <Text fontSize="xs">電話番号: 090-6703-6735</Text>
-            </Flex>
-          </Card>
-          <Card
-            _hover={{
-              backgroundColor: "gray.100",
-              cursor: "pointer",
-              boxShadow: "lg",
-            }}
-            transition=".3s"
-            p="17px 18px"
-            onClick={projectOpenFunc}
-          >
-            <Flex gap="16px" align="center" pt="4px">
-              <Heading fontSize="md">△△会社</Heading>
-            </Flex>
-            <Flex gap="4px" direction="column" p="10px 0 0">
-              <Text fontSize="xs">郵便番号: 274-0000</Text>
-              <Text fontSize="xs">住所: 千葉県習志野市津田沼1-5-1111</Text>
-              <Text fontSize="xs">
-                メールアドレス: ookuraseiya0506@gmail.com
-              </Text>
-              <Text fontSize="xs">電話番号: 090-6703-6735</Text>
-            </Flex>
-          </Card>
-          <Card
-            _hover={{
-              backgroundColor: "gray.100",
-              cursor: "pointer",
-              boxShadow: "lg",
-            }}
-            transition=".3s"
-            p="17px 18px"
-            onClick={projectOpenFunc}
-          >
-            <Flex gap="16px" align="center" pt="4px">
-              <Heading fontSize="md">積洋ハウス</Heading>
-            </Flex>
-            <Flex gap="4px" direction="column" p="10px 0 0">
-              <Text fontSize="xs">郵便番号: 274-0000</Text>
-              <Text fontSize="xs">住所: 千葉県習志野市津田沼1-5-1111</Text>
-              <Text fontSize="xs">
-                メールアドレス: ookuraseiya0506@gmail.com
-              </Text>
-              <Text fontSize="xs">電話番号: 090-6703-6735</Text>
-            </Flex>
-          </Card>
-          <Card
-            _hover={{
-              backgroundColor: "gray.100",
-              cursor: "pointer",
-              boxShadow: "lg",
-            }}
-            transition=".3s"
-            p="17px 18px"
-            onClick={projectOpenFunc}
-          >
-            <Flex gap="16px" align="center" pt="4px">
-              <Heading fontSize="md">Sea.inc</Heading>
-            </Flex>
-            <Flex gap="4px" direction="column" p="10px 0 0">
-              <Text fontSize="xs">郵便番号: 274-0000</Text>
-              <Text fontSize="xs">住所: 千葉県習志野市津田沼1-5-1111</Text>
-              <Text fontSize="xs">
-                メールアドレス: ookuraseiya0506@gmail.com
-              </Text>
-              <Text fontSize="xs">電話番号: 090-6703-6735</Text>
-            </Flex>
-          </Card>
-          <Card
-            _hover={{
-              backgroundColor: "gray.100",
-              cursor: "pointer",
-              boxShadow: "lg",
-            }}
-            transition=".3s"
-            p="17px 18px"
-            onClick={projectOpenFunc}
-          >
-            <Flex gap="16px" align="center" pt="4px">
-              <Heading fontSize="md">LINE・Yahoo株式会社</Heading>
-            </Flex>
-            <Flex gap="4px" direction="column" p="10px 0 0">
-              <Text fontSize="xs">郵便番号: 274-0000</Text>
-              <Text fontSize="xs">住所: 千葉県習志野市津田沼1-5-1111</Text>
-              <Text fontSize="xs">
-                メールアドレス: ookuraseiya0506@gmail.com
-              </Text>
-              <Text fontSize="xs">電話番号: 090-6703-6735</Text>
-            </Flex>
-          </Card>
+          {company.map((company) => (
+            <Card
+              key={company.companyName} // 一意のキーを設定
+              _hover={{
+                backgroundColor: "gray.100",
+                cursor: "pointer",
+                boxShadow: "lg",
+              }}
+              transition=".3s"
+              p="17px 18px"
+              onClick={projectOpenFunc}
+            >
+              <Flex gap="16px" align="center" pt="4px">
+                <Heading fontSize="md">{company.companyName}</Heading>
+              </Flex>
+              <Flex gap="4px" direction="column" p="10px 0 0">
+                <Text fontSize="xs">郵便番号: {company.postcode}</Text>
+                <Text fontSize="xs">住所: {company.address}</Text>
+                <Text fontSize="xs">メールアドレス: {company.email}</Text>
+                <Text fontSize="xs">電話番号: {company.phoneNumber}</Text>
+              </Flex>
+            </Card>
+          ))}
         </Flex>
       </Box>
     </>
