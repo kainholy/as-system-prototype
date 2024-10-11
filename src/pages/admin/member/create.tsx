@@ -61,7 +61,7 @@ function MemberCreate() {
         emergencyContacts: [emergencyContact],
       });
 
-      if (response.status === 200) {
+      if (response.status === 201) {
         alert("ユーザーが正常に登録されました");
       } else {
         alert(`エラー: ${response.data.message}`);

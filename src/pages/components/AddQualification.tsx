@@ -32,7 +32,7 @@ function AddQualification({
           qualificationName,
         }
       );
-      if (response.status === 200) {
+      if (response.status === 201) {
         alert("資格を追加しました");
         setAddOpen(false);
         // ページをリロード

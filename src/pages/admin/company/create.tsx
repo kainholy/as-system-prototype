@@ -33,7 +33,6 @@ function CompanyCreate() {
         }
       );
 
-      // axiosではresponse.dataに結果が格納される
       alert("会社が正常に登録されました");
     } catch (error) {
       // エラーハンドリング
