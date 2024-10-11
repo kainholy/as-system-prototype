@@ -20,7 +20,7 @@ type Company = {
   postcode: string;
   address: string;
   email: string;
-  phoneNumber: string;
+  phonenumber: string;
 };
 
 export default function Company() {
@@ -92,7 +92,7 @@ export default function Company() {
                 <Text fontSize="xs">郵便番号: {company.postcode}</Text>
                 <Text fontSize="xs">住所: {company.address}</Text>
                 <Text fontSize="xs">メールアドレス: {company.email}</Text>
-                <Text fontSize="xs">電話番号: {company.phoneNumber}</Text>
+                <Text fontSize="xs">電話番号: {company.phonenumber}</Text>
               </Flex>
             </Card>
           ))}
