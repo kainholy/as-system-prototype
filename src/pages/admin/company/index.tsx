@@ -15,6 +15,7 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 
 type Company = {
+  id: number;
   companyName: string;
   postcode: string;
   address: string;
@@ -24,12 +25,14 @@ type Company = {
 
 export default function Company() {
   const [company, setCompany] = useState<Company[]>([]);
+  const [selectedCompany, setSelectedCompany] = useState<Company | null>(null);
 
   useEffect(() => {
     const fetchCompany = async () => {
       try {
         const response = await axios.get("http://localhost:4000/companies");
-        setCompany(response.data);
+        const sortedCompanies = response.data.sort((a: Company, b: Company) => a.id - b.id);
+        setCompany(sortedCompanies);
       } catch (error) {
         console.error("会社情報の取得中にエラーが発生しました:", error);
       }
@@ -39,26 +42,29 @@ export default function Company() {
   }, []);
 
   const [editOpen, setEditOpen] = useState(false);
-  const editCompany = () => {
+  const editCompany = (company: Company) => {
+    setSelectedCompany(company);
     setEditOpen(true);
   };
 
-  const [projectOpen, setProjectOpen] = useState(false);
-  const projectOpenFunc = () => {
-    setProjectOpen(true);
-  };
+  // const [projectOpen, setProjectOpen] = useState(false);
+  // const projectOpenFunc = () => {
+  //   setProjectOpen(true);
+  // };
 
   return (
     <>
       <Navigation />
       <Box w="calc(100% - 220px)" margin="0 0 0 auto" position="relative">
-        {editOpen && <EditCompany setEditOpen={setEditOpen} />}
-        {projectOpen && (
+        {editOpen && selectedCompany &&
+          <EditCompany setEditOpen={setEditOpen} companyId={selectedCompany.id}
+        />}
+        {/* {projectOpen && (
           <CompanyProject
             setProjectOpen={setProjectOpen}
             setEditOpen={setEditOpen}
           />
-        )}
+        )} */}
         <Bread second="会社情報" third="会社一覧" />
         <Flex
           w="60%"
@@ -69,7 +75,7 @@ export default function Company() {
         >
           {company.map((company) => (
             <Card
-              key={company.companyName} // 一意のキーを設定
+              key={company.id} // 一意のキーを設定
               _hover={{
                 backgroundColor: "gray.100",
                 cursor: "pointer",
@@ -77,7 +83,7 @@ export default function Company() {
               }}
               transition=".3s"
               p="17px 18px"
-              onClick={projectOpenFunc}
+              onClick={() => editCompany(company)}
             >
               <Flex gap="16px" align="center" pt="4px">
                 <Heading fontSize="md">{company.companyName}</Heading>
