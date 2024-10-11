@@ -18,6 +18,7 @@ import {
 } from "@chakra-ui/react";
 import Navigation from "../../components/Navigation";
 import Bread from "../../components/Breadcrumb";
+import axios from "axios"; // Import axios
 
 function MemberCreate() {
   const [staffId, setStaffId] = useState("");
@@ -45,32 +46,25 @@ function MemberCreate() {
     const fullNameRoman = `${romanSurname} ${romanGivenName}`;
 
     try {
-      // バックエンドへのPOSTリクエスト
-      const response = await fetch("http://localhost:4000/register", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          staffId,
-          password,
-          fullName,
-          fullNameRoman,
-          address,
-          postcode,
-          phoneNumber,
-          email,
-          birthday,
-          hireDate,
-          emergencyContacts: [emergencyContact],
-        }),
+      // axiosを使用してバックエンドへのPOSTリクエスト
+      const response = await axios.post("http://localhost:4000/register", {
+        staffId,
+        password,
+        fullName,
+        fullNameRoman,
+        address,
+        postcode,
+        phoneNumber,
+        email,
+        birthday,
+        hireDate,
+        emergencyContacts: [emergencyContact],
       });
 
-      const result = await response.json();
-      if (response.ok) {
+      if (response.status === 200) {
         alert("ユーザーが正常に登録されました");
       } else {
-        alert(`エラー: ${result.message}`);
+        alert(`エラー: ${response.data.message}`);
       }
     } catch (error) {
       console.error("登録中にエラーが発生しました:", error);

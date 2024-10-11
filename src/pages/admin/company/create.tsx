@@ -10,6 +10,7 @@ import {
 } from "@chakra-ui/react";
 import Navigation from "../../components/Navigation";
 import Bread from "../../components/Breadcrumb";
+import axios from "axios"; // axiosをインポート
 
 function CompanyCreate() {
   const [companyName, setCompanyName] = useState("");
@@ -21,30 +22,28 @@ function CompanyCreate() {
   const handleSubmit = async () => {
     try {
       // バックエンドへのPOSTリクエスト
-      const response = await fetch("http://localhost:4000/registerCompany", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
+      const response = await axios.post(
+        "http://localhost:4000/registerCompany",
+        {
           companyName,
           postcode,
           address,
           email,
           phonenumber,
-        }),
-      });
+        }
+      );
 
-      const result = await response.json();
-      if (response.ok) {
-        alert("会社が正常に登録されました");
-      } else {
-        alert(`エラー: ${result.message}`);
-        console.log(result.message);
-      }
+      // axiosではresponse.dataに結果が格納される
+      alert("会社が正常に登録されました");
     } catch (error) {
-      console.error("エラーが発生しました:", error);
-      console.log(error);
+      // エラーハンドリング
+      if (axios.isAxiosError(error) && error.response) {
+        alert(`エラー: ${error.response.data.message}`);
+        console.log(error.response.data.message);
+      } else {
+        console.error("エラーが発生しました:", error);
+        console.log(error);
+      }
     }
   };
 

@@ -10,6 +10,7 @@ import {
 } from "@chakra-ui/react";
 import { CloseIcon } from "@chakra-ui/icons";
 import { useState } from "react";
+import axios from "axios";
 
 function AddQualification({
   setAddOpen,
@@ -24,20 +25,14 @@ function AddQualification({
 
   const handleSubmit = async () => {
     try {
-      // バックエンドへのPOSTリクエスト
-      const response = await fetch(
+      // axiosを使用してバックエンドへのPOSTリクエスト
+      const response = await axios.post(
         "http://localhost:4000/registerQualification",
         {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            qualificationName,
-          }),
+          qualificationName,
         }
       );
-      if (response.ok) {
+      if (response.status === 200) {
         alert("資格を追加しました");
         setAddOpen(false);
         // ページをリロード
