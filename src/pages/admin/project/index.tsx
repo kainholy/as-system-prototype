@@ -17,8 +17,8 @@ import axios from "axios"; // axiosをインポート
 
 export default function Project() {
   const [projects, setProjects] = useState<any[]>([]); // プロジェクトデータの状態
-  const [year, setYear] = useState(2024);
-  const [month, setMonth] = useState(7);
+  const [year, setYear] = useState(new Date().getFullYear()); // 現在の年を取得
+  const [month, setMonth] = useState(new Date().getMonth() + 1); // 現在の月を取得
 
   const [editOpen, setEditOpen] = useState(false);
   const [detailOpen, setDetailOpen] = useState(false);
@@ -183,7 +183,7 @@ export default function Project() {
                         <Flex gap="4px" align="center">
                           <Text fontSize="sm">必要資格:</Text>
                           {projectItem.projectDescription[0]?.projectQualification.map(
-                            (qual, index) => (
+                            (qual: any, index: any) => (
                               <Badge
                                 key={index}
                                 variant="outline"
