@@ -14,7 +14,7 @@ type Company = {
   postcode: string;
   address: string;
   email: string;
-  phonenumber: string;
+  phoneNumber: string;
 };
 
 function EditCompany({ setEditOpen, companyId }: EditCompanyProps) {
@@ -136,9 +136,9 @@ function EditCompany({ setEditOpen, companyId }: EditCompanyProps) {
           <FormLabel fontSize="sm" color="gray.800">電話番号</FormLabel>
           <Input
             type="tel"
-            name="phonenumber"
-            value={editedCompany.phonenumber}
-            onChange={(e) => handleInputChange('phonenumber', e.target.value)}
+            name="phoneNumber"
+            value={editedCompany.phoneNumber}
+            onChange={(e) => handleInputChange('phoneNumber', e.target.value)}
           />
         </FormControl>
 
