@@ -252,11 +252,11 @@ function ProjectCreate() {
               </FormLabel>
               <NumberInput
                 max={200}
-                min={1}
-                value={qualifiedMembersNeeded[index] || 1}
+                min={0}
+                value={qualifiedMembersNeeded[index] || 0}
                 onChange={(valueString) => {
                   const newNeeded = [...qualifiedMembersNeeded];
-                  newNeeded[index] = parseInt(valueString) || 1;
+                  newNeeded[index] = parseInt(valueString) || 0;
                   setQualifiedMembersNeeded(newNeeded);
                 }}
               >
