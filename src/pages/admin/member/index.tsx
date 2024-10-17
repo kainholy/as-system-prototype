@@ -13,6 +13,7 @@ type EmergencyContact = {
 };
 
 type Qualification = {
+  id: number
   qualificationName: string;
 };
 
@@ -102,19 +103,25 @@ export default function MemberPage() {
                 <Flex gap="4px" pt="6px" direction="column">
                   <Flex gap="4px" align="center">
                     <Text fontSize="sm">資格:</Text>
-                    <Badge
-                      variant="outline"
-                      colorScheme={
-                        member.qualifications.length > 0 ? "blue" : "gray"
-                      }
-                      p="0 5px"
-                    >
-                      <Text p="1px 7px">
-                        {member.qualifications.length > 0
-                          ? member.qualifications[0].qualificationName
-                          : "なし"}
-                      </Text>
-                    </Badge>
+                    {member.qualifications.length > 0
+                      ? member.qualifications.map((qualification) => (
+                          <Badge
+                            variant="outline"
+                            colorScheme="blue"
+                            p="0 5px"
+                            key={qualification.id}
+                          >
+                            {qualification.qualificationName}
+                          </Badge>
+                        ))
+                      : <Badge
+                          variant="outline"
+                          colorScheme="gray"
+                          p="0 5px"
+                        >
+                          なし
+                        </Badge>
+                    }
                   </Flex>
                   <Text fontSize="sm">住所: {member.address}</Text>
                   <Text fontSize="sm">Tel: {member.phonenumber}</Text>

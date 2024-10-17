@@ -27,6 +27,12 @@ type Qualification = {
   qualificationName: string;
 };
 
+type Member = {
+  id: number;
+  staffId: string;
+  name: string;
+};
+
 function MemberCreate() {
   const [staffId, setStaffId] = useState("");
   const [password, setPassword] = useState("");
@@ -47,8 +53,10 @@ function MemberCreate() {
     relationship: "",
   });
   const [selectedQualifications, setSelectedQualifications] = useState<number[]>([]);
+  const [selectedNgStaffs, setSelectedNgStaffs] = useState<number[]>([]);
 
   const [qualifications, setQualifications] = useState<Qualification[]>([]);
+  const [members, setMembers] = useState<Member[]>([]);
   
 
   // 資格情報をget
@@ -62,7 +70,17 @@ function MemberCreate() {
       }
     };
 
+    const fetchMembers = async () => {
+      try {
+        const response = await axios.get("http://localhost:4000/members");
+        setMembers(response.data);
+      } catch (error) {
+        console.error("メンバー情報の取得中にエラーが発生しました:", error);
+      }
+    }
+
     fetchQualification();
+    fetchMembers();
   }, []);
 
   // フォームの送信ハンドラー
@@ -84,6 +102,7 @@ function MemberCreate() {
         birthday,
         hireDate,
         emergencyContacts: [emergencyContact],
+        ngStaff: selectedNgStaffs,
         staffQualifications: selectedQualifications,
       });
 
@@ -365,6 +384,47 @@ function MemberCreate() {
               })}
             </Wrap>
           </FormControl>
+
+          {/* NG隊員 */}
+          <FormControl isRequired>
+            <FormLabel fontSize="sm" color="gray.800">
+              NG隊員
+            </FormLabel>
+            <Wrap spacing="12px">
+              {members.map((member) => {
+                const isSelected = selectedNgStaffs.includes(member.id);
+                return (
+                  <WrapItem key={member.id}>
+                    <Box
+                      as="button"
+                      px="4"
+                      py="2"
+                      borderWidth="1px"
+                      borderRadius="md"
+                      borderColor={isSelected ? "blue.500" : "gray.300"}
+                      bg={isSelected ? "blue.500" : "white"}
+                      color={isSelected ? "white" : "gray.800"}
+                      onClick={() => {
+                        const value = member.id;
+                        if (isSelected) {
+                          setSelectedNgStaffs(
+                            selectedNgStaffs.filter((id) => id !== value)
+                          );
+                        } else {
+                          setSelectedNgStaffs([...selectedNgStaffs, value]);
+                        }
+                      }}
+                    >
+                      {member.name}
+                    </Box>
+                  </WrapItem>
+                );
+              })}
+            </Wrap>
+          </FormControl>
+          
+
+
 
 
           <Button mt={4} colorScheme="blue" onClick={handleSubmit}>

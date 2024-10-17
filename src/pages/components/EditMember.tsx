@@ -178,6 +178,40 @@ export default function EditMember({ setEditOpen, memberId }: EditMemberProps) {
           </FormControl>
         </Flex>
 
+        <Flex flex="1" gap="40px">
+          <FormControl isRequired>
+            <FormLabel fontSize="sm" color="gray.800">
+              セイ
+            </FormLabel>
+            <Input
+              type="text"
+              value={editedMember.romanname.split(" ")[0]}
+              onChange={(e) =>
+                handleInputChange(
+                  "romanname",
+                  `${e.target.value} ${editedMember.romanname.split(" ")[1] || ""}`
+                )
+              }
+            />
+          </FormControl>
+
+          <FormControl isRequired>
+            <FormLabel fontSize="sm" color="gray.800">
+              メイ
+            </FormLabel>
+            <Input
+              type="text"
+              value={editedMember.romanname.split(" ")[1] || ""}
+              onChange={(e) =>
+                handleInputChange(
+                  "romanname",
+                  `${editedMember.romanname.split(" ")[0]} ${e.target.value}`
+                )
+              }
+            />
+          </FormControl>
+        </Flex>
+
         <FormControl isRequired>
           <FormLabel fontSize="sm" color="gray.800">
             生年月日
@@ -237,6 +271,8 @@ export default function EditMember({ setEditOpen, memberId }: EditMemberProps) {
             onChange={(e) => handleInputChange("email", e.target.value)}
           />
         </FormControl>
+
+
 
         <Flex gap="20px" justifyContent="right">
           <Button
