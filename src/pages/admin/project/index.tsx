@@ -37,6 +37,7 @@ export default function Project() {
             month,
           },
         });
+        console.log(response.data); // デバッグ用にプロジェクトデータを表示
         setProjects(response.data);
       } catch (error) {
         console.error("プロジェクト情報の取得中にエラーが発生しました:", error);
@@ -119,15 +120,17 @@ export default function Project() {
             }月${day.getDate()}日`;
 
             // 当日のプロジェクトをフィルタリング
-            const projectsForDay = projects.filter((project) => {
-              const projectDate = new Date(
-                project.projectDescription[0]?.workDate
-              );
-              return (
-                projectDate.getFullYear() === day.getFullYear() &&
-                projectDate.getMonth() === day.getMonth() &&
-                projectDate.getDate() === day.getDate()
-              );
+            const projectsForDay = projects.flatMap((project) => {
+              return project.projectDescription
+                .filter((description: any) => {
+                  const projectDate = new Date(description.workDate);
+                  // タイムゾーンや時刻を除外して日付だけで比較
+                  return projectDate.toDateString() === day.toDateString();
+                })
+                .map((description: any) => ({
+                  ...project,
+                  projectDescription: description,
+                }));
             });
 
             // 該当するプロジェクトがない場合は表示しない
@@ -149,110 +152,123 @@ export default function Project() {
                   backgroundColor="gray.50"
                   p="24px 16px"
                 >
-                  {projectsForDay.map((projectItem) => (
-                    <Card
-                      key={projectItem.id}
-                      _hover={{
-                        backgroundColor: "gray.100",
-                        cursor: "pointer",
-                        boxShadow: "lg",
-                      }}
-                      transition=".3s"
-                      p="17px 18px"
-                      onClick={detailOpenFunc}
-                    >
-                      {/* 会社名とプロジェクト名 */}
-                      <Heading fontSize="md">
-                        {projectItem.company.companyName} /{" "}
-                        {projectItem.projectName}
-                      </Heading>
-                      <Text fontSize="xs">
-                        会社電話番号: {projectItem.company.phonenumber}
-                      </Text>
+                  {projectsForDay.map((projectItem) => {
+                    const startTime = new Date(
+                      projectItem.projectDescription.startTime
+                    );
+                    const endTime = new Date(
+                      projectItem.projectDescription.endTime
+                    );
 
-                      <Text fontSize="sm">
-                        現場住所: {projectItem.projectDescription[0]?.address}
-                      </Text>
-                      <Text fontSize="sm">
-                        郵便番号: {projectItem.projectDescription[0]?.postcode}
-                      </Text>
+                    // 日付の妥当性チェック
+                    const isValidStartTime = !isNaN(startTime.getTime());
+                    const isValidEndTime = !isNaN(endTime.getTime());
 
-                      {/* プロジェクトの詳細 */}
-                      <Flex gap="4px" pt="6px" direction="column">
-                        {/* 必要資格 */}
-                        <Flex gap="4px" align="center">
-                          <Text fontSize="sm">必要資格:</Text>
-                          {projectItem.projectDescription[0]?.projectQualification.map(
-                            (qual: any, index: any) => (
-                              <Badge
-                                key={index}
-                                variant="outline"
-                                colorScheme="blue"
-                                p="0 5px"
-                              >
-                                <Text p="1px 7px">
-                                  {qual.qualification.qualificationName}{" "}
-                                  {
-                                    projectItem.projectDescription[0]
-                                      .qualifiedMembersNeeded
-                                  }
-                                  名
-                                </Text>
-                              </Badge>
-                            )
-                          )}
+                    return (
+                      <Card
+                        key={projectItem.id}
+                        _hover={{
+                          backgroundColor: "gray.100",
+                          cursor: "pointer",
+                          boxShadow: "lg",
+                        }}
+                        transition=".3s"
+                        p="17px 18px"
+                        onClick={detailOpenFunc}
+                      >
+                        {/* 会社名とプロジェクト名 */}
+                        <Heading fontSize="md">
+                          {projectItem.company.companyName} /{" "}
+                          {projectItem.projectName}
+                        </Heading>
+                        <Text fontSize="xs">
+                          会社電話番号: {projectItem.company.phonenumber}
+                        </Text>
+
+                        <Text fontSize="sm">
+                          現場住所: {projectItem.projectDescription.address}
+                        </Text>
+                        <Text fontSize="sm">
+                          郵便番号: {projectItem.projectDescription.postcode}
+                        </Text>
+
+                        {/* プロジェクトの詳細 */}
+                        <Flex gap="4px" pt="6px" direction="column">
+                          {/* 必要資格 */}
+                          <Flex gap="4px" align="center">
+                            <Text fontSize="sm">必要資格:</Text>
+                            {projectItem.projectDescription.projectQualification.map(
+                              (qual: any, index: any) => (
+                                <Badge
+                                  key={index}
+                                  variant="outline"
+                                  colorScheme="blue"
+                                  p="0 5px"
+                                >
+                                  <Text p="1px 7px">
+                                    {qual.qualification.qualificationName}{" "}
+                                    {
+                                      projectItem.projectDescription
+                                        .qualifiedMembersNeeded
+                                    }
+                                    名
+                                  </Text>
+                                </Badge>
+                              )
+                            )}
+                          </Flex>
+
+                          {/* 必要隊員数 */}
+                          <Text fontSize="sm">
+                            必要隊員数:{" "}
+                            {projectItem.projectDescription.requiredMembers}
+                          </Text>
+
+                          {/* 単価 */}
+                          <Flex gap="4px" align="center">
+                            <Text fontSize="sm">単価:</Text>
+                            <Badge
+                              variant="outline"
+                              colorScheme="orange"
+                              p="0 5px"
+                            >
+                              <Text p="1px 7px">
+                                {projectItem.projectDescription.workTimeType}
+                              </Text>
+                            </Badge>
+                          </Flex>
+
+                          {/* 時間 */}
+                          <Text fontSize="sm">
+                            時間:{" "}
+                            {isValidStartTime
+                              ? startTime.toLocaleTimeString([], {
+                                  hour: "2-digit",
+                                  minute: "2-digit",
+                                })
+                              : "Invalid Date"}{" "}
+                            ~{" "}
+                            {isValidEndTime
+                              ? endTime.toLocaleTimeString([], {
+                                  hour: "2-digit",
+                                  minute: "2-digit",
+                                })
+                              : "Invalid Date"}
+                          </Text>
+
+                          {/* 担当者情報 */}
+                          <Text fontSize="sm">
+                            担当者名:{" "}
+                            {projectItem.projectDescription.managerName}
+                          </Text>
+                          <Text fontSize="sm">
+                            担当者電話番号:{" "}
+                            {projectItem.projectDescription.phonenumber}
+                          </Text>
                         </Flex>
-
-                        {/* 必要隊員数 */}
-                        <Text fontSize="sm">
-                          必要隊員数:{" "}
-                          {projectItem.projectDescription[0]?.requiredMembers}
-                        </Text>
-
-                        {/* 単価 */}
-                        <Flex gap="4px" align="center">
-                          <Text fontSize="sm">単価:</Text>
-                          <Badge
-                            variant="outline"
-                            colorScheme="orange"
-                            p="0 5px"
-                          >
-                            <Text p="1px 7px">
-                              {projectItem.projectDescription[0]?.workTimeType}
-                            </Text>
-                          </Badge>
-                        </Flex>
-
-                        {/* 時間 */}
-                        <Text fontSize="sm">
-                          時間:{" "}
-                          {new Date(
-                            projectItem.projectDescription[0]?.startTime
-                          ).toLocaleTimeString([], {
-                            hour: "2-digit",
-                            minute: "2-digit",
-                          })}{" "}
-                          ~{" "}
-                          {new Date(
-                            projectItem.projectDescription[0]?.endTime
-                          ).toLocaleTimeString([], {
-                            hour: "2-digit",
-                            minute: "2-digit",
-                          })}
-                        </Text>
-
-                        {/* 担当者情報 */}
-                        <Text fontSize="sm">
-                          担当者名:{" "}
-                          {projectItem.projectDescription[0]?.managerName}
-                        </Text>
-                        <Text fontSize="sm">
-                          担当者電話番号:{" "}
-                          {projectItem.projectDescription[0]?.phonenumber}
-                        </Text>
-                      </Flex>
-                    </Card>
-                  ))}
+                      </Card>
+                    );
+                  })}
                 </Grid>
               </Flex>
             );

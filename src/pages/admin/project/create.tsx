@@ -23,6 +23,9 @@ import {
   ModalFooter,
   Wrap,
   WrapItem,
+  HStack,
+  Radio,
+  RadioGroup,
 } from "@chakra-ui/react";
 import Navigation from "../../components/Navigation";
 import Bread from "../../components/Breadcrumb";
@@ -62,6 +65,10 @@ function ProjectCreate() {
   const [phonenumber, setPhonenumber] = useState("");
   const [memo, setMemo] = useState("");
 
+  const [projectType, setProjectType] = useState("new"); // 新規か既存かの選択
+  const [existingProjectId, setExistingProjectId] = useState(""); // 既存プロジェクトのIDを保存
+  const [existingProjects, setExistingProjects] = useState([]); // 既存プロジェクトのリスト
+
   const { isOpen, onOpen, onClose } = useDisclosure();
 
   // 会社と資格情報を取得
@@ -85,38 +92,57 @@ function ProjectCreate() {
         console.error("資格情報の取得中にエラーが発生しました:", error);
       }
     };
+    const fetchProjects = async () => {
+      try {
+        const response = await axios.get("http://localhost:4000/reprojects");
+        setExistingProjects(response.data);
+      } catch (error) {
+        console.error("既存プロジェクトの取得中にエラーが発生しました:", error);
+      }
+    };
 
     fetchCompanies();
     fetchQualifications();
+    fetchProjects(); // 既存プロジェクトを取得
   }, []);
 
   // フォーム送信
   const handleSubmit = async () => {
-    try {
-      const projectData = {
+    const projectData = {
+      projectType,
+      ...(projectType === "new" && {
         projectName,
         companyId,
-        phoneNumber,
-        postcode,
-        address,
-        selectedQualifications,
-        qualifiedMembersNeeded,
-        requiredMembers,
-        unitPriceType,
-        unitPrice,
-        workDate,
-        startTime,
-        endTime,
-        managerName,
-        phonenumber,
-        memo,
-      };
+      }),
+      ...(projectType === "existing" && {
+        existingProjectId, // 既存プロジェクトIDを追加
+      }),
+      phoneNumber,
+      postcode,
+      address,
+      selectedQualifications,
+      qualifiedMembersNeeded,
+      requiredMembers,
+      unitPriceType,
+      unitPrice,
+      workDate,
+      startTime,
+      endTime,
+      managerName,
+      phonenumber,
+      memo,
+    };
 
+    if (projectType === "existing" && !existingProjectId) {
+      alert("既存プロジェクトを選択してください。");
+      return;
+    }
+
+    try {
       const response = await axios.post(
         "http://localhost:4000/registerProject",
         projectData
       );
-
       if (response.status === 201) {
         alert("プロジェクトが正常に登録されました。");
       } else {
@@ -147,29 +173,61 @@ function ProjectCreate() {
           direction="column"
           gap="24px"
         >
-          <FormControl isRequired>
-            <FormLabel>プロジェクト名</FormLabel>
-            <Input
-              value={projectName}
-              placeholder="〇〇警備"
-              onChange={(e) => setProjectName(e.target.value)}
-            />
+          <FormControl as="fieldset" isRequired>
+            <FormLabel as="legend">プロジェクト作成方法</FormLabel>
+            <RadioGroup onChange={setProjectType} value={projectType}>
+              <HStack spacing="24px">
+                <Radio value="new">新規プロジェクトを作成する</Radio>
+                <Radio value="existing">既存プロジェクトを使用する</Radio>
+              </HStack>
+            </RadioGroup>
           </FormControl>
+          {projectType === "new" && (
+            <>
+              <FormControl isRequired>
+                <FormLabel>プロジェクト名</FormLabel>
+                <Input
+                  value={projectName}
+                  placeholder="〇〇警備"
+                  onChange={(e) => setProjectName(e.target.value)}
+                />
+              </FormControl>
 
-          <FormControl isRequired>
-            <FormLabel>会社名</FormLabel>
-            <Select
-              value={companyId}
-              placeholder="会社を選択してください"
-              onChange={(e) => setCompanyId(e.target.value)}
-            >
-              {companies.map((company) => (
-                <option key={company.id} value={company.id}>
-                  {company.companyName}
-                </option>
-              ))}
-            </Select>
-          </FormControl>
+              <FormControl isRequired>
+                <FormLabel>会社名</FormLabel>
+                <Select
+                  value={companyId}
+                  placeholder="会社を選択してください"
+                  onChange={(e) => setCompanyId(e.target.value)}
+                >
+                  {companies.map((company) => (
+                    <option key={company.id} value={company.id}>
+                      {company.companyName}
+                    </option>
+                  ))}
+                </Select>
+              </FormControl>
+            </>
+          )}
+
+          {projectType === "existing" && (
+            <FormControl isRequired>
+              <FormLabel>既存プロジェクトを選択</FormLabel>
+              <Select
+                value={existingProjectId}
+                placeholder="プロジェクトを選択してください"
+                onChange={(e) => setExistingProjectId(e.target.value)}
+              >
+                {existingProjects.map(
+                  (project: { id: number; projectName: string }) => (
+                    <option key={project.id} value={project.id}>
+                      {project.projectName}
+                    </option>
+                  )
+                )}
+              </Select>
+            </FormControl>
+          )}
 
           {/* 電話番号 */}
           <FormControl isRequired>
