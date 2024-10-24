@@ -11,9 +11,36 @@ import {
 } from "@chakra-ui/react";
 import Navigation from "../../components/Navigation";
 import Bread from "../../components/Breadcrumb";
-import EditProject from "@/pages/components/EditProject";
 import DetailProject from "@/pages/components/DetailProject";
 import axios from "axios"; // axiosをインポート
+
+type Project = {
+  id: number;
+  projectName: string;
+  company: {
+    companyName: string;
+    phonenumber: string;
+  };
+  projectDescription: {
+    workDate: string;
+    startTime: string;
+    endTime: string;
+    address: string;
+    postcode: string;
+    managerName: string;
+    phonenumber: string;
+    requiredMembers: number;
+    unitPrice: number;
+    workTimeType: string;
+    memo: string;
+    projectQualification: {
+      qualification: {
+        qualificationName: string;
+      };
+      numberOfMembersNeeded: number;
+    }[];
+  };
+};
 
 export default function Project() {
   const [projects, setProjects] = useState<any[]>([]); // プロジェクトデータの状態
@@ -22,8 +49,11 @@ export default function Project() {
 
   const [editOpen, setEditOpen] = useState(false);
   const [detailOpen, setDetailOpen] = useState(false);
+  const [selectedProject, setSelectedProject] = useState<any>(null); // 選択されたプロジェクトを保存
 
-  const detailOpenFunc = () => {
+  // モーダルを開く関数
+  const detailOpenFunc = (project: any) => {
+    setSelectedProject(project);
     setDetailOpen(true);
   };
 
@@ -74,16 +104,21 @@ export default function Project() {
     setMonth(date.getMonth() + 1);
   };
 
+  const handleUpdateProject = (updatedProject: Project) => {
+    // プロジェクト更新ロジック（例: サーバーに送信する処理など）
+    console.log("Updated project:", updatedProject);
+  };
+
   return (
     <>
       <Navigation />
       <Box w="calc(100% - 220px)" margin="0 0 0 auto" position="relative">
         <Bread second="案件情報" third="案件一覧" />
-        {editOpen && <EditProject setEditOpen={setEditOpen} />}
         {detailOpen && (
           <DetailProject
             setDetailOpen={setDetailOpen}
             setEditOpen={setEditOpen}
+            project={selectedProject}
           />
         )}
         <Flex p="64px 40px" direction="column" gap="40px">
@@ -174,7 +209,7 @@ export default function Project() {
                         }}
                         transition=".3s"
                         p="17px 18px"
-                        onClick={detailOpenFunc}
+                        onClick={() => detailOpenFunc(projectItem)}
                       >
                         {/* 会社名とプロジェクト名 */}
                         <Heading fontSize="md">
