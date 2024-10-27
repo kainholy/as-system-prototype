@@ -1,4 +1,3 @@
-"use client";
 import {
   Box,
   Card,
@@ -12,9 +11,35 @@ import {
   FormLabel,
 } from "@chakra-ui/react";
 import Image from "next/image";
+import { useState } from "react";
+import axios from "axios";
+import { useRouter } from "next/router";
 
 export default function Page() {
   const { toggleColorMode } = useColorMode();
+  const [staffId, setStaffId] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      const response = await axios.post("http://localhost:4000/login", {
+        staffId,
+        password,
+      });
+      const { token } = response.data;
+      localStorage.setItem("token", token);
+      router.push("/user/dashboard");
+    } catch (error) {
+      setError(
+        "ログインに失敗しました。隊員番号とパスワードを確認してください。"
+      );
+      localStorage.removeItem("token");
+    }
+  };
+
   return (
     <>
       <Flex
@@ -26,6 +51,8 @@ export default function Page() {
       >
         <Card w="70%" p="80px 0">
           <Flex
+            as="form"
+            onSubmit={handleSubmit}
             margin="0 auto"
             w="400px"
             direction="column"
@@ -60,17 +87,32 @@ export default function Page() {
                 <FormLabel fontWeight="bold" fontSize="sm" color="gray.800">
                   隊員番号
                 </FormLabel>
-                <Input type="name" placeholder="1000" />
+                <Input
+                  type="text"
+                  placeholder="1000"
+                  value={staffId}
+                  onChange={(e) => setStaffId(e.target.value)}
+                  required
+                />
               </FormControl>
               <FormControl>
                 <FormLabel fontWeight="bold" fontSize="sm" color="gray.800">
                   パスワード
                 </FormLabel>
-                <Input type="name" placeholder="パスワードを入力" />
+                <Input
+                  type="password"
+                  placeholder="パスワードを入力"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                />
               </FormControl>
             </Flex>
 
+            {error && <Text color="red.500">{error}</Text>}
+
             <Button
+              type="submit"
               w="250px"
               backgroundColor="gray.800"
               color="white"

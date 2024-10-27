@@ -1,4 +1,3 @@
-"use client";
 import {
   Box,
   Button,
@@ -15,8 +14,19 @@ import {
 import Navigation from "../../components/userNavigation";
 import Bread from "../../components/Breadcrumb";
 import Link from "next/link";
+import { useEffect, useState } from "react";
+import withAuth from "../../../hoc/withAuth";
+import { useRouter } from "next/router";
 
-export default function UserDashboard() {
+function UserDashboard() {
+  const router = useRouter();
+
+  // ログアウト関数の定義
+  const handleLogout = () => {
+    localStorage.removeItem("token"); // トークンを削除
+    router.push("/user/login"); // ログインページへリダイレクト
+  };
+
   // これらの値は実際のデータに基づいて動的に設定する必要があります
   const totalWorkDays = 120;
   const daysSinceJoining = 180;
@@ -27,9 +37,15 @@ export default function UserDashboard() {
       <Box w="calc(100% - 220px)" margin="0 0 0 auto">
         <Bread second={""} third={""} />
         <Box p={5}>
-          <Heading as="h1" size="xl" mb={5}>
-            ダッシュボード
-          </Heading>
+          <Flex justify="space-between" align="center" mb={5}>
+            <Heading as="h1" size="xl">
+              ダッシュボード
+            </Heading>
+            {/* ログアウトボタンを追加 */}
+            <Button onClick={handleLogout} colorScheme="red">
+              ログアウト
+            </Button>
+          </Flex>
           <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={10}>
             <Card>
               <CardHeader>
@@ -72,3 +88,6 @@ export default function UserDashboard() {
     </>
   );
 }
+
+// `withAuth` HOCで認証保護を追加
+export default withAuth(UserDashboard);
