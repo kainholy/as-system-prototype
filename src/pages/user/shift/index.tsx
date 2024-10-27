@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Box,
   Grid,
@@ -16,24 +16,134 @@ import {
   Input,
   useDisclosure,
   Flex,
-  IconButton,
+  Spinner,
 } from "@chakra-ui/react";
-import { DeleteIcon } from "@chakra-ui/icons";
-
 import UserNavigation from "../../components/userNavigation";
 import Bread from "../../components/Breadcrumb";
+import axios from "axios";
+import withAuth from "../../../hoc/withAuth";
+import { useRouter } from "next/router";
 
 const Calendar: React.FC = () => {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
-  const [event, setEvent] = useState("");
-  const [events, setEvents] = useState<{ [date: string]: string[] }>({});
   const [shifts, setShifts] = useState<{ [date: string]: boolean }>({});
   const [leaveRequests, setLeaveRequests] = useState<{
     [date: string]: boolean;
   }>({});
+  const [projectNames, setProjectNames] = useState<{
+    [date: string]: string[];
+  }>({});
+  const [loading, setLoading] = useState(false);
+  const [memo, setMemo] = useState("");
   const [today] = useState(new Date());
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const router = useRouter();
+
+  // 日付フォーマット関数を追加
+  function formatDate(date: Date) {
+    const year = date.getFullYear();
+    const month = `0${date.getMonth() + 1}`.slice(-2); // 月は0始まりなので+1
+    const day = `0${date.getDate()}`.slice(-2);
+    return `${year}-${month}-${day}`;
+  }
+
+  useEffect(() => {
+    fetchProjectNamesForMonth();
+    fetchExistingRequests();
+  }, [currentDate]);
+
+  const fetchProjectNamesForMonth = async () => {
+    setLoading(true);
+    const token = localStorage.getItem("token");
+    if (!token) {
+      router.push("/login");
+      return;
+    }
+
+    const year = currentDate.getFullYear();
+    const month = currentDate.getMonth();
+
+    // 月の最初の日と最後の日を取得
+    const firstDay = new Date(year, month, 1);
+    const lastDay = new Date(year, month + 1, 0);
+
+    const dateArray = [];
+    for (let d = new Date(firstDay); d <= lastDay; d.setDate(d.getDate() + 1)) {
+      dateArray.push(new Date(d));
+    }
+
+    const promises = dateArray.map(async (date) => {
+      const dateString = formatDate(date); // 修正
+      try {
+        const response = await axios.get(
+          `http://localhost:4000/projects/${dateString}`,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+        return { date: dateString, projectNames: response.data.projectNames };
+      } catch (error) {
+        console.error(
+          `プロジェクト取得中にエラーが発生しました (${dateString}):`,
+          error
+        );
+        return { date: dateString, projectNames: [] };
+      }
+    });
+
+    const results = await Promise.all(promises);
+
+    const projectNamesMap: { [date: string]: string[] } = {};
+    results.forEach((result) => {
+      projectNamesMap[result.date] = result.projectNames;
+    });
+
+    setProjectNames(projectNamesMap);
+    setLoading(false);
+  };
+
+  const fetchExistingRequests = async () => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      router.push("/login");
+      return;
+    }
+
+    try {
+      const response = await axios.get(
+        "http://localhost:4000/getShiftRequests",
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+
+      const shiftData = response.data;
+      const newShifts: { [date: string]: boolean } = {};
+      const newLeaveRequests: { [date: string]: boolean } = {};
+
+      shiftData.forEach((req: any) => {
+        const dateString = req.workDate
+          ? formatDate(new Date(req.workDate)) // 修正
+          : req.reqOffDate
+          ? formatDate(new Date(req.reqOffDate)) // 修正
+          : null;
+
+        if (dateString) {
+          if (req.workDate) {
+            newShifts[dateString] = true;
+          } else if (req.reqOffDate) {
+            newLeaveRequests[dateString] = true;
+          }
+        }
+      });
+
+      setShifts(newShifts);
+      setLeaveRequests(newLeaveRequests);
+    } catch (error) {
+      console.error("シフトリクエストの取得中にエラーが発生しました:", error);
+    }
+  };
 
   const daysInMonth = new Date(
     currentDate.getFullYear(),
@@ -71,68 +181,101 @@ const Calendar: React.FC = () => {
     onOpen();
   };
 
-  const handleAddEvent = () => {
-    if (selectedDate && event) {
-      const dateString = selectedDate.toISOString().split("T")[0];
-      setEvents((prevEvents) => ({
-        ...prevEvents,
-        [dateString]: [...(prevEvents[dateString] || []), event],
-      }));
-      setEvent("");
-    }
-    onClose();
-  };
-
-  const handleShiftRegistration = () => {
+  // シフト提出処理
+  const handleShiftRegistration = async () => {
     if (selectedDate) {
-      const dateString = selectedDate.toISOString().split("T")[0];
-      setShifts((prevShifts) => ({
-        ...prevShifts,
-        [dateString]: true,
-      }));
+      const dateString = formatDate(selectedDate); // 修正
+      const token = localStorage.getItem("token");
+      if (!token) {
+        router.push("/login");
+        return;
+      }
+
+      try {
+        await axios.post(
+          "http://localhost:4000/submitShift",
+          {
+            selectedDate: dateString,
+            memo,
+            type: "shift",
+          },
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+        setShifts((prevShifts) => ({
+          ...prevShifts,
+          [dateString]: true,
+        }));
+        setMemo("");
+        onClose();
+      } catch (error) {
+        console.error("シフト提出中にエラーが発生しました:", error);
+      }
     }
-    onClose();
   };
 
-  const handleLeaveRequest = () => {
-    if (selectedDate) {
-      const dateString = selectedDate.toISOString().split("T")[0];
-      setLeaveRequests((prevLeaveRequests) => ({
-        ...prevLeaveRequests,
-        [dateString]: true,
-      }));
-    }
-    onClose();
-  };
-
-  const handleDeleteEvent = (dateString: string, index: number) => {
-    setEvents((prevEvents) => ({
-      ...prevEvents,
-      [dateString]: prevEvents[dateString].filter((_, i) => i !== index),
-    }));
-  };
-
-  const handleDeleteShift = (dateString: string) => {
+  // シフト削除処理
+  const handleDeleteShift = async (dateString: string) => {
+    // サーバー側で削除処理を行う場合はここに実装
     setShifts((prevShifts) => {
       const newShifts = { ...prevShifts };
       delete newShifts[dateString];
       return newShifts;
     });
+    // TODO: サーバー側での削除処理を実装
   };
 
-  const handleDeleteLeaveRequest = (dateString: string) => {
+  // 休暇申請処理
+  const handleLeaveRequest = async () => {
+    if (selectedDate) {
+      const dateString = formatDate(selectedDate); // 修正
+      const token = localStorage.getItem("token");
+      if (!token) {
+        router.push("/login");
+        return;
+      }
+
+      try {
+        await axios.post(
+          "http://localhost:4000/submitShift",
+          {
+            selectedDate: dateString,
+            memo,
+            type: "leave",
+          },
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+        setLeaveRequests((prevLeaveRequests) => ({
+          ...prevLeaveRequests,
+          [dateString]: true,
+        }));
+        setMemo("");
+        onClose();
+      } catch (error) {
+        console.error("休暇申請中にエラーが発生しました:", error);
+      }
+    }
+  };
+
+  // 休暇申請削除処理
+  const handleDeleteLeaveRequest = async (dateString: string) => {
+    // サーバー側で削除処理を行う場合はここに実装
     setLeaveRequests((prevLeaveRequests) => {
       const newLeaveRequests = { ...prevLeaveRequests };
       delete newLeaveRequests[dateString];
       return newLeaveRequests;
     });
+    // TODO: サーバー側での削除処理を実装
   };
 
   return (
     <>
       <UserNavigation />
       <Box w="calc(100% - 220px)" margin="0 0 0 auto">
-        <Bread second="隊員情報" third="隊員追加" />
+        <Bread second="シフト" third="シフト提出" />
         <VStack spacing={6} padding="40px 20px">
           <HStack spacing={4}>
             <Button onClick={prevMonth} size="lg">
@@ -145,167 +288,144 @@ const Calendar: React.FC = () => {
               翌月
             </Button>
           </HStack>
-          <Grid
-            templateColumns="repeat(7, 1fr)"
-            gap={4}
-            width="100%"
-            maxWidth="1000px"
-          >
-            {weekdays.map((day) => (
-              <Box key={day} textAlign="center" fontWeight="bold" fontSize="lg">
-                {day}
-              </Box>
-            ))}
-            {Array(firstDayOfMonth)
-              .fill(null)
-              .map((_, index) => (
-                <Box key={`empty-${index}`} />
-              ))}
-            {days.map((day) => {
-              const dateString = new Date(
-                currentDate.getFullYear(),
-                currentDate.getMonth(),
-                day
-              )
-                .toISOString()
-                .split("T")[0];
-              const hasEvent = events[dateString]?.length > 0;
-              const hasShift = shifts[dateString];
-              const hasLeaveRequest = leaveRequests[dateString];
-              const isToday =
-                day === today.getDate() &&
-                currentDate.getMonth() === today.getMonth() &&
-                currentDate.getFullYear() === today.getFullYear();
-
-              return (
+          {loading ? (
+            <Spinner />
+          ) : (
+            <Grid
+              templateColumns="repeat(7, 1fr)"
+              gap={4}
+              width="100%"
+              maxWidth="1000px"
+            >
+              {weekdays.map((day) => (
                 <Box
                   key={day}
                   textAlign="center"
-                  p={4}
-                  border="1px"
-                  borderColor="gray.200"
-                  borderRadius="md"
-                  cursor="pointer"
-                  onClick={() => handleDateClick(day)}
+                  fontWeight="bold"
                   fontSize="lg"
-                  height="80px"
-                  display="flex"
-                  flexDirection="column"
-                  alignItems="center"
-                  justifyContent="space-between"
-                  bg={isToday ? "red.100" : "white"}
                 >
-                  <Text
-                    color={isToday ? "red.500" : "inherit"}
-                    fontWeight={isToday ? "bold" : "normal"}
-                  >
-                    {day}
-                  </Text>
-                  <Flex>
-                    {hasEvent && (
-                      <Box
-                        w="8px"
-                        h="8px"
-                        borderRadius="50%"
-                        bg="blue.500"
-                        mr="2px"
-                      />
-                    )}
-                    {hasShift && (
-                      <Box
-                        w="8px"
-                        h="8px"
-                        borderRadius="50%"
-                        bg="green.500"
-                        mr="2px"
-                      />
-                    )}
-                    {hasLeaveRequest && (
-                      <Box
-                        w="8px"
-                        h="8px"
-                        borderRadius="50%"
-                        bg="orange.500"
-                        mr="2px"
-                      />
-                    )}
-                  </Flex>
+                  {day}
                 </Box>
-              );
-            })}
-          </Grid>
+              ))}
+              {Array(firstDayOfMonth)
+                .fill(null)
+                .map((_, index) => (
+                  <Box key={`empty-${index}`} />
+                ))}
+              {days.map((day) => {
+                const dateObj = new Date(
+                  currentDate.getFullYear(),
+                  currentDate.getMonth(),
+                  day
+                );
+                const dateString = formatDate(dateObj); // 修正
+                const hasShift = shifts[dateString];
+                const hasLeaveRequest = leaveRequests[dateString];
+                const isToday =
+                  day === today.getDate() &&
+                  currentDate.getMonth() === today.getMonth() &&
+                  currentDate.getFullYear() === today.getFullYear();
+
+                return (
+                  <Box
+                    key={day}
+                    textAlign="center"
+                    p={2}
+                    border="1px"
+                    borderColor="gray.200"
+                    borderRadius="md"
+                    cursor="pointer"
+                    onClick={() => handleDateClick(day)}
+                    fontSize="lg"
+                    height="100px"
+                    display="flex"
+                    flexDirection="column"
+                    alignItems="center"
+                    justifyContent="flex-start"
+                    bg={isToday ? "red.100" : "white"}
+                  >
+                    <Text
+                      color={isToday ? "red.500" : "inherit"}
+                      fontWeight={isToday ? "bold" : "normal"}
+                    >
+                      {day}
+                    </Text>
+                    <Flex direction="column" alignItems="center">
+                      {projectNames[dateString] &&
+                        projectNames[dateString].map((name, idx) => (
+                          <Text key={idx} fontSize="xs">
+                            {name}
+                          </Text>
+                        ))}
+                    </Flex>
+                    <Flex mt="auto">
+                      {hasShift && (
+                        <Box
+                          w="8px"
+                          h="8px"
+                          borderRadius="50%"
+                          bg="green.500"
+                          mr="2px"
+                        />
+                      )}
+                      {hasLeaveRequest && (
+                        <Box
+                          w="8px"
+                          h="8px"
+                          borderRadius="50%"
+                          bg="orange.500"
+                          mr="2px"
+                        />
+                      )}
+                    </Flex>
+                  </Box>
+                );
+              })}
+            </Grid>
+          )}
         </VStack>
       </Box>
 
       <Modal isOpen={isOpen} onClose={onClose} size="lg">
         <ModalOverlay />
         <ModalContent>
-          <ModalHeader>{selectedDate?.toLocaleDateString()}の予定</ModalHeader>
+          <ModalHeader>{selectedDate?.toLocaleDateString()}の詳細</ModalHeader>
           <ModalCloseButton />
           <ModalBody>
             <VStack spacing={4} align="stretch">
-              <Text fontWeight="bold">予定一覧：</Text>
+              <Text fontWeight="bold">プロジェクト名：</Text>
               {selectedDate &&
-                events[selectedDate.toISOString().split("T")[0]]?.map(
-                  (event, index) => (
-                    <Flex
-                      key={index}
-                      justifyContent="space-between"
-                      alignItems="center"
-                    >
-                      <Text>{event}</Text>
-                      <IconButton
-                        aria-label="Delete event"
-                        icon={<DeleteIcon />}
-                        size="sm"
-                        onClick={() =>
-                          handleDeleteEvent(
-                            selectedDate.toISOString().split("T")[0],
-                            index
-                          )
-                        }
-                      />
-                    </Flex>
-                  )
-                )}
-              {(!selectedDate ||
-                !events[selectedDate.toISOString().split("T")[0]] ||
-                events[selectedDate.toISOString().split("T")[0]]?.length ===
-                  0) && <Text>予定はありません</Text>}
+              projectNames[formatDate(selectedDate)] &&
+              projectNames[formatDate(selectedDate)].length > 0 ? (
+                projectNames[formatDate(selectedDate)].map((name, idx) => (
+                  <Text key={idx}>{name}</Text>
+                ))
+              ) : (
+                <Text>プロジェクトはありません</Text>
+              )}
               <Input
-                placeholder="新しい予定を入力してください"
-                value={event}
-                onChange={(e) => setEvent(e.target.value)}
+                placeholder="メモを入力してください"
+                value={memo}
+                onChange={(e) => setMemo(e.target.value)}
               />
-              <Button colorScheme="blue" onClick={handleAddEvent}>
-                予定を追加
-              </Button>
               <HStack spacing={4} justifyContent="center">
-                {selectedDate &&
-                shifts[selectedDate.toISOString().split("T")[0]] ? (
+                {selectedDate && shifts[formatDate(selectedDate)] ? (
                   <Button
                     colorScheme="red"
-                    onClick={() =>
-                      handleDeleteShift(
-                        selectedDate.toISOString().split("T")[0]
-                      )
-                    }
+                    onClick={() => handleDeleteShift(formatDate(selectedDate))}
                   >
                     シフト削除
                   </Button>
                 ) : (
                   <Button colorScheme="green" onClick={handleShiftRegistration}>
-                    シフト登録
+                    シフト提出
                   </Button>
                 )}
-                {selectedDate &&
-                leaveRequests[selectedDate.toISOString().split("T")[0]] ? (
+                {selectedDate && leaveRequests[formatDate(selectedDate)] ? (
                   <Button
                     colorScheme="red"
                     onClick={() =>
-                      handleDeleteLeaveRequest(
-                        selectedDate.toISOString().split("T")[0]
-                      )
+                      handleDeleteLeaveRequest(formatDate(selectedDate))
                     }
                   >
                     休暇申請削除
@@ -329,4 +449,4 @@ const Calendar: React.FC = () => {
   );
 };
 
-export default Calendar;
+export default withAuth(Calendar);
