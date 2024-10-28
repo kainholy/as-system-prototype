@@ -1,3 +1,5 @@
+// pages/Calendar.tsx
+
 import React, { useState, useEffect } from "react";
 import {
   Box,
@@ -17,6 +19,7 @@ import {
   useDisclosure,
   Flex,
   Spinner,
+  Select,
 } from "@chakra-ui/react";
 import UserNavigation from "../../components/userNavigation";
 import Bread from "../../components/Breadcrumb";
@@ -27,9 +30,9 @@ import { useRouter } from "next/router";
 const Calendar: React.FC = () => {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
-  const [shifts, setShifts] = useState<{ [date: string]: boolean }>({});
+  const [shifts, setShifts] = useState<{ [date: string]: { id: number } }>({});
   const [leaveRequests, setLeaveRequests] = useState<{
-    [date: string]: boolean;
+    [date: string]: { id: number };
   }>({});
   const [projectNames, setProjectNames] = useState<{
     [date: string]: string[];
@@ -39,6 +42,11 @@ const Calendar: React.FC = () => {
   const [today] = useState(new Date());
   const { isOpen, onOpen, onClose } = useDisclosure();
   const router = useRouter();
+
+  const [availableProjects, setAvailableProjects] = useState<
+    { id: number; name: string }[]
+  >([]);
+  const [selectedProjectId, setSelectedProjectId] = useState("");
 
   // 日付フォーマット関数を追加
   function formatDate(date: Date) {
@@ -74,7 +82,7 @@ const Calendar: React.FC = () => {
     }
 
     const promises = dateArray.map(async (date) => {
-      const dateString = formatDate(date); // 修正
+      const dateString = formatDate(date);
       try {
         const response = await axios.get(
           `http://localhost:4000/projects/${dateString}`,
@@ -82,7 +90,10 @@ const Calendar: React.FC = () => {
             headers: { Authorization: `Bearer ${token}` },
           }
         );
-        return { date: dateString, projectNames: response.data.projectNames };
+        return {
+          date: dateString,
+          projectNames: response.data.projects.map((p: any) => p.name),
+        };
       } catch (error) {
         console.error(
           `プロジェクト取得中にエラーが発生しました (${dateString}):`,
@@ -119,21 +130,17 @@ const Calendar: React.FC = () => {
       );
 
       const shiftData = response.data;
-      const newShifts: { [date: string]: boolean } = {};
-      const newLeaveRequests: { [date: string]: boolean } = {};
+      const newShifts: { [date: string]: { id: number } } = {};
+      const newLeaveRequests: { [date: string]: { id: number } } = {};
 
       shiftData.forEach((req: any) => {
-        const dateString = req.workDate
-          ? formatDate(new Date(req.workDate)) // 修正
-          : req.reqOffDate
-          ? formatDate(new Date(req.reqOffDate)) // 修正
-          : null;
+        const dateString = req.date ? formatDate(new Date(req.date)) : null;
 
         if (dateString) {
-          if (req.workDate) {
-            newShifts[dateString] = true;
-          } else if (req.reqOffDate) {
-            newLeaveRequests[dateString] = true;
+          if (req.requestType === "SHIFT") {
+            newShifts[dateString] = { id: req.id };
+          } else if (req.requestType === "LEAVE") {
+            newLeaveRequests[dateString] = { id: req.id };
           }
         }
       });
@@ -171,20 +178,42 @@ const Calendar: React.FC = () => {
     );
   };
 
-  const handleDateClick = (day: number) => {
+  const handleDateClick = async (day: number) => {
     const clickedDate = new Date(
       currentDate.getFullYear(),
       currentDate.getMonth(),
       day
     );
     setSelectedDate(clickedDate);
+    setMemo("");
+    setSelectedProjectId("");
+
+    const dateString = formatDate(clickedDate);
+    const token = localStorage.getItem("token");
+    if (!token) {
+      router.push("/login");
+      return;
+    }
+
+    try {
+      const response = await axios.get(
+        `http://localhost:4000/projects/${dateString}`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      setAvailableProjects(response.data.projects);
+    } catch (error) {
+      console.error("プロジェクト取得中にエラーが発生しました:", error);
+      setAvailableProjects([]);
+    }
+
     onOpen();
   };
 
-  // シフト提出処理
-  const handleShiftRegistration = async () => {
+  const handleShiftSubmission = async () => {
     if (selectedDate) {
-      const dateString = formatDate(selectedDate); // 修正
+      const dateString = formatDate(selectedDate);
       const token = localStorage.getItem("token");
       if (!token) {
         router.push("/login");
@@ -192,22 +221,26 @@ const Calendar: React.FC = () => {
       }
 
       try {
-        await axios.post(
-          "http://localhost:4000/submitShift",
+        const response = await axios.post(
+          "http://localhost:4000/submitShiftRequest",
           {
             selectedDate: dateString,
             memo,
-            type: "shift",
+            requestType: "SHIFT",
+            projectDescriptionId: selectedProjectId || null,
           },
           {
             headers: { Authorization: `Bearer ${token}` },
           }
         );
+
         setShifts((prevShifts) => ({
           ...prevShifts,
-          [dateString]: true,
+          [dateString]: { id: response.data.shiftRequest.id },
         }));
+
         setMemo("");
+        setSelectedProjectId("");
         onClose();
       } catch (error) {
         console.error("シフト提出中にエラーが発生しました:", error);
@@ -215,21 +248,9 @@ const Calendar: React.FC = () => {
     }
   };
 
-  // シフト削除処理
-  const handleDeleteShift = async (dateString: string) => {
-    // サーバー側で削除処理を行う場合はここに実装
-    setShifts((prevShifts) => {
-      const newShifts = { ...prevShifts };
-      delete newShifts[dateString];
-      return newShifts;
-    });
-    // TODO: サーバー側での削除処理を実装
-  };
-
-  // 休暇申請処理
   const handleLeaveRequest = async () => {
     if (selectedDate) {
-      const dateString = formatDate(selectedDate); // 修正
+      const dateString = formatDate(selectedDate);
       const token = localStorage.getItem("token");
       if (!token) {
         router.push("/login");
@@ -237,21 +258,24 @@ const Calendar: React.FC = () => {
       }
 
       try {
-        await axios.post(
-          "http://localhost:4000/submitShift",
+        const response = await axios.post(
+          "http://localhost:4000/submitShiftRequest",
           {
             selectedDate: dateString,
             memo,
-            type: "leave",
+            requestType: "LEAVE",
+            projectDescriptionId: null,
           },
           {
             headers: { Authorization: `Bearer ${token}` },
           }
         );
+
         setLeaveRequests((prevLeaveRequests) => ({
           ...prevLeaveRequests,
-          [dateString]: true,
+          [dateString]: { id: response.data.shiftRequest.id },
         }));
+
         setMemo("");
         onClose();
       } catch (error) {
@@ -260,15 +284,64 @@ const Calendar: React.FC = () => {
     }
   };
 
-  // 休暇申請削除処理
+  const handleDeleteShift = async (dateString: string) => {
+    const shift = shifts[dateString];
+    if (!shift) return;
+
+    const token = localStorage.getItem("token");
+    if (!token) {
+      router.push("/login");
+      return;
+    }
+
+    try {
+      await axios.delete(
+        `http://localhost:4000/deleteShiftRequest/${shift.id}`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+
+      setShifts((prevShifts) => {
+        const newShifts = { ...prevShifts };
+        delete newShifts[dateString];
+        return newShifts;
+      });
+
+      onClose();
+    } catch (error) {
+      console.error("シフト申請の削除中にエラーが発生しました:", error);
+    }
+  };
+
   const handleDeleteLeaveRequest = async (dateString: string) => {
-    // サーバー側で削除処理を行う場合はここに実装
-    setLeaveRequests((prevLeaveRequests) => {
-      const newLeaveRequests = { ...prevLeaveRequests };
-      delete newLeaveRequests[dateString];
-      return newLeaveRequests;
-    });
-    // TODO: サーバー側での削除処理を実装
+    const leaveRequest = leaveRequests[dateString];
+    if (!leaveRequest) return;
+
+    const token = localStorage.getItem("token");
+    if (!token) {
+      router.push("/login");
+      return;
+    }
+
+    try {
+      await axios.delete(
+        `http://localhost:4000/deleteShiftRequest/${leaveRequest.id}`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+
+      setLeaveRequests((prevLeaveRequests) => {
+        const newLeaveRequests = { ...prevLeaveRequests };
+        delete newLeaveRequests[dateString];
+        return newLeaveRequests;
+      });
+
+      onClose();
+    } catch (error) {
+      console.error("休暇申請の削除中にエラーが発生しました:", error);
+    }
   };
 
   return (
@@ -318,7 +391,7 @@ const Calendar: React.FC = () => {
                   currentDate.getMonth(),
                   day
                 );
-                const dateString = formatDate(dateObj); // 修正
+                const dateString = formatDate(dateObj);
                 const hasShift = shifts[dateString];
                 const hasLeaveRequest = leaveRequests[dateString];
                 const isToday =
@@ -393,52 +466,62 @@ const Calendar: React.FC = () => {
           <ModalCloseButton />
           <ModalBody>
             <VStack spacing={4} align="stretch">
-              <Text fontWeight="bold">プロジェクト名：</Text>
-              {selectedDate &&
-              projectNames[formatDate(selectedDate)] &&
-              projectNames[formatDate(selectedDate)].length > 0 ? (
-                projectNames[formatDate(selectedDate)].map((name, idx) => (
-                  <Text key={idx}>{name}</Text>
-                ))
-              ) : (
-                <Text>プロジェクトはありません</Text>
+              {availableProjects.length > 0 && (
+                <Select
+                  placeholder="プロジェクトを選択 (任意)"
+                  value={selectedProjectId}
+                  onChange={(e) => setSelectedProjectId(e.target.value)}
+                >
+                  {availableProjects.map((project) => (
+                    <option key={project.id} value={project.id}>
+                      {project.name}
+                    </option>
+                  ))}
+                </Select>
               )}
+
               <Input
-                placeholder="メモを入力してください"
+                placeholder="メモを入力してください (任意)"
                 value={memo}
                 onChange={(e) => setMemo(e.target.value)}
               />
-              <HStack spacing={4} justifyContent="center">
-                {selectedDate && shifts[formatDate(selectedDate)] ? (
-                  <Button
-                    colorScheme="red"
-                    onClick={() => handleDeleteShift(formatDate(selectedDate))}
-                  >
-                    シフト削除
-                  </Button>
-                ) : (
-                  <Button colorScheme="green" onClick={handleShiftRegistration}>
-                    シフト提出
-                  </Button>
-                )}
-                {selectedDate && leaveRequests[formatDate(selectedDate)] ? (
-                  <Button
-                    colorScheme="red"
-                    onClick={() =>
-                      handleDeleteLeaveRequest(formatDate(selectedDate))
-                    }
-                  >
-                    休暇申請削除
-                  </Button>
-                ) : (
-                  <Button colorScheme="orange" onClick={handleLeaveRequest}>
-                    休暇申請
-                  </Button>
-                )}
-              </HStack>
             </VStack>
           </ModalBody>
           <ModalFooter>
+            {selectedDate && shifts[formatDate(selectedDate)] ? (
+              <Button
+                colorScheme="red"
+                onClick={() => handleDeleteShift(formatDate(selectedDate))}
+                mr={3}
+              >
+                シフト申請をキャンセル
+              </Button>
+            ) : (
+              <Button
+                colorScheme="green"
+                onClick={handleShiftSubmission}
+                mr={3}
+              >
+                シフト提出
+              </Button>
+            )}
+
+            {selectedDate && leaveRequests[formatDate(selectedDate)] ? (
+              <Button
+                colorScheme="red"
+                onClick={() =>
+                  handleDeleteLeaveRequest(formatDate(selectedDate))
+                }
+                mr={3}
+              >
+                休暇申請をキャンセル
+              </Button>
+            ) : (
+              <Button colorScheme="orange" onClick={handleLeaveRequest} mr={3}>
+                休暇申請
+              </Button>
+            )}
+
             <Button variant="ghost" onClick={onClose}>
               閉じる
             </Button>
