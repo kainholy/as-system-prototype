@@ -1,11 +1,59 @@
 import Bread from '@/pages/components/Breadcrumb'
 import Navigation from '@/pages/components/Navigation'
-import { Box, Button, Flex, Heading, Input, useColorMode } from '@chakra-ui/react'
+import { Box, Flex, Heading } from '@chakra-ui/react'
 import DropTest from '@/pages/components/DropTest';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import axios from 'axios';
 
+type EmergencyContact = {
+  name: string;
+  relationship: string;
+  phoneNumber: string;
+};
 
-export default function Page() {
+type Qualification = {
+  id: number
+  qualificationName: string;
+};
+
+type Member = {
+  id: number;
+  staffId: string;
+  name: string;
+  romanname: string;
+  address: string;
+  postcode: string;
+  phonenumber: string;
+  email: string;
+  birthday: string;
+  hiredate: string;
+  role: string;
+  emergencyContacts: EmergencyContact[];
+  qualifications: Qualification[];
+  ngStaffList: string;
+
+  bannedInfo: string;
+  selfBanned: string;
+};
+
+export default function ShiftPage() {
+  const [members, setMembers] = useState<Member[]>([]);
+
+  useEffect(() => {
+    const fetchMembers = async () => {
+      try {
+        const response = await axios.get("http://localhost:4000/members");
+        setMembers(response.data);
+      } catch (error) {
+        console.error("メンバー情報の取得中にエラーが発生しました:", error);
+      }
+    };
+
+    fetchMembers();
+  }, []);
+
+  console.log(members);
+
   function getDaysInMonth(month: number) {
     const daysInMonth = [];
     const year = 2024;
@@ -19,6 +67,11 @@ export default function Page() {
     }
     return daysInMonth;
   }
+  const [activeId, setActiveId] = useState('1');
+  const daysInJuly = getDaysInMonth(7);
+  const toggleActive = (id) => {
+    setActiveId(id);
+  };
   
   const data = [
     {
@@ -37,15 +90,7 @@ export default function Page() {
           { name: '3級', number: '2名' }
         ]
       },
-      employeesList: [
-        { id: '1', name: '大倉 聖哉', qualification: '2級' },
-        { id: '2', name: '和田 大輝', qualification: 'なし' },
-        { id: '3', name: '山田 太郎', qualification: '3級' },
-        { id: '6', name: '山田 太郎', qualification: '3級' },
-      ],
       projectList: [
-        { id: '4', name: '大倉 聖哉yyy', qualification: '2級' },
-        { id: '5', name: '和田 大輝yyy', qualification: 'なし' },
       ]
     },
     {
@@ -64,14 +109,7 @@ export default function Page() {
           { name: '3級', number: '2名' }
         ]
       },
-      employeesList: [
-        { id: '1', name: '大倉 聖哉2', qualification: '2級' },
-        { id: '2', name: '和田 大輝2', qualification: 'なし' },
-        { id: '3', name: '山田 太郎2', qualification: '3級' },
-      ],
       projectList: [
-        { id: '4', name: '大倉 聖哉2yyy', qualification: '2級' },
-        { id: '5', name: '和田 大輝2yyy', qualification: 'なし' },
       ]
     },
     {
@@ -90,20 +128,11 @@ export default function Page() {
           { name: '3級', number: '2名' }
         ]
       },
-      employeesList: [
-        { id: '1', name: '大倉 聖哉3', qualification: '2級' },
-        { id: '2', name: '和田 大輝3', qualification: 'なし' },
-        { id: '3', name: '山田 太郎3', qualification: '3級' },
-      ],
       projectList: [
       ]
     }
   ]
-  const [activeId, setActiveId] = useState('1');
-  const daysInJuly = getDaysInMonth(7);
-  const toggleActive = (id) => {
-    setActiveId(id);
-  };
+
   return (
     <>
       <Navigation />
@@ -130,7 +159,7 @@ export default function Page() {
                     <Box key={item.id} w='100%' onClick={() => toggleActive(item.id)}>
                       <DropTest 
                         project={item.project} 
-                        employeesList={item.employeesList} 
+                        members={members}
                         projectList={item.projectList} 
                         isActive={item.id === activeId} 
                       />
