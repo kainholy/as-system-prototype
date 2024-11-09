@@ -35,6 +35,33 @@ type Member = {
   selfBanned: string;
 };
 
+type ProjectMember = {
+  id: number;
+  staffProfileId: number;
+  projectDescriptionId: number;
+};
+
+type ProjectDescription = {
+  workDate: string;
+  startTime: string;
+  endTime: string;
+  address: string;
+  postcode: string;
+  managerName: string;
+  phonenumber: string;
+  requiredMembers: number;
+  unitPrice: number;
+  workTimeType: string;
+  memo: string;
+  projectQualification: {
+    qualification: {
+      qualificationName: string;
+    };
+    numberOfMembersNeeded: number;
+  }[];
+  projectMember: ProjectMember[]; // 追加
+};
+
 type Project = {
   id: number;
   projectName: string;
@@ -42,30 +69,13 @@ type Project = {
     companyName: string;
     phonenumber: string;
   };
-  projectDescription: {
-    workDate: string;
-    startTime: string;
-    endTime: string;
-    address: string;
-    postcode: string;
-    managerName: string;
-    phonenumber: string;
-    requiredMembers: number;
-    unitPrice: number;
-    workTimeType: string;
-    memo: string;
-    projectQualification: {
-      qualification: {
-        qualificationName: string;
-      };
-      numberOfMembersNeeded: number;
-    }[];
-  }[]; // 配列に変更
+  projectDescription: ProjectDescription[]; // 修正
 };
 
-export default function ShiftPage() {
+export default function ShiftCreate() {
   const [members, setMembers] = useState<Member[]>([]);
   const [projects, setProjects] = useState<Project[]>([]);
+  const [projectMembers, setProjectMembers] = useState<ProjectMember[]>([]);
   const [year, setYear] = useState(new Date().getFullYear()); // 現在の年を取得
   const [month, setMonth] = useState(new Date().getMonth() + 1); // 現在の月を取得
 
@@ -92,7 +102,21 @@ export default function ShiftPage() {
             month,
           },
         });
-        setProjects(response.data);
+        const fetchedProjects: Project[] = response.data;
+        setProjects(fetchedProjects);
+
+        // プロジェクトから全ての projectMembers を抽出して状態を更新
+        const allProjectMembers: ProjectMember[] = [];
+
+        fetchedProjects.forEach((project) => {
+          project.projectDescription.forEach((description) => {
+            if (description.projectMember && Array.isArray(description.projectMember)) {
+              allProjectMembers.push(...description.projectMember);
+            }
+          });
+        });
+
+        setProjectMembers(allProjectMembers);
       } catch (error) {
         console.error('プロジェクト情報の取得中にエラーが発生しました:', error);
       }
@@ -142,28 +166,20 @@ export default function ShiftPage() {
             gap="32px"
             position="relative"
           >
-            <Button
-              colorScheme="gray"
-              type="submit"
-              size="sm"
-              onClick={minusFunc}
-            >
+            <Button colorScheme="gray" type="submit" size="sm" onClick={minusFunc}>
               ←
             </Button>
             <Heading fontSize="md">
               {year}年 {month}月
             </Heading>
-            <Button
-              colorScheme="gray"
-              type="submit"
-              size="sm"
-              onClick={addFunc}
-            >
+            <Button colorScheme="gray" type="submit" size="sm" onClick={addFunc}>
               →
             </Button>
           </Flex>
           {daysInMonth.map((day) => {
-            const formattedDay = `${day.getFullYear()}年${day.getMonth() + 1}月${day.getDate()}日`;
+            const formattedDay = `${day.getFullYear()}年${
+              day.getMonth() + 1
+            }月${day.getDate()}日`;
 
             // 当日のプロジェクトをフィルタリング
             const projectsForDay = projects.flatMap((project) => {
@@ -206,7 +222,7 @@ export default function ShiftPage() {
                       <DropTest
                         project={project}
                         members={members}
-                        projectList={[]}
+                        projectMembers={projectMembers}
                         isActive={project.id === activeId}
                       />
                     </Box>
