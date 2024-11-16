@@ -66,7 +66,7 @@ function UserDashboard() {
             </Card>
             <Card>
               <CardHeader>
-                <Heading size="md">次のシフト</Heading>
+                <Heading size="md">次回勤務</Heading>
               </CardHeader>
               <CardBody>
                 <Text>日付: 2023年5月1日</Text>

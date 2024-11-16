@@ -1,11 +1,9 @@
 import {
-  Box,
   Card,
   Button,
   Flex,
   Heading,
   Input,
-  useColorMode,
   Text,
   FormControl,
   FormLabel,
@@ -16,7 +14,6 @@ import axios from "axios";
 import { useRouter } from "next/router";
 
 export default function Page() {
-  const { toggleColorMode } = useColorMode();
   const [staffId, setStaffId] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
