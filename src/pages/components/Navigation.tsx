@@ -18,7 +18,7 @@ export default function Navigation() {
       <Box w="220px" h="100vh" position="fixed">
         <Box p="20px 16px" backgroundColor="gray.50" h="100%">
           <Box p="0">
-            <Link href="/admin/">
+            <Link href="/">
               <Image src="/logo.png" alt="logo" width={54} height={59} />
             </Link>
           </Box>
@@ -400,7 +400,6 @@ function CompanyIcon(props: any) {
       {/* ビルの窓 左列 */}
       <rect x="6.5" y="6" width="11" height="4" />
       <rect x="6.5" y="13" width="11" height="4" />
-
     </svg>
   );
 }
