@@ -40,6 +40,30 @@ type ProjectMember = {
   projectDescriptionId: number;
 };
 
+type ProjectQualification = {
+  qualification: {
+    qualificationName: string;
+  };
+  numberOfMembersNeeded: number;
+};
+
+type ProjectDescription = {
+  id: number;
+  workDate: string;
+  startTime: string;
+  endTime: string;
+  address: string;
+  postcode: string;
+  managerName: string;
+  phonenumber: string;
+  requiredMembers: number;
+  unitPrice: number;
+  workTimeType: string;
+  memo: string;
+  projectQualification: ProjectQualification[];
+  ProjectMember: ProjectMember[];
+};
+
 type Project = {
   id: number;
   projectName: string;
@@ -47,32 +71,12 @@ type Project = {
     companyName: string;
     phonenumber: string;
   };
-  projectDescription: {
-    id: number;
-    workDate: string;
-    startTime: string;
-    endTime: string;
-    address: string;
-    postcode: string;
-    managerName: string;
-    phonenumber: string;
-    requiredMembers: number;
-    unitPrice: number;
-    workTimeType: string;
-    memo: string;
-    projectQualification: {
-      qualification: {
-        qualificationName: string;
-      };
-      numberOfMembersNeeded: number;
-    }[];
-    projectMember: ProjectMember[];
-  };
+  projectDescription: ProjectDescription;
 };
 
 type DropTestProps = {
   project: Project;
-  projectMembers: ProjectMember[];
+  updateProjectMembers: { [key: number]: ProjectMember[] };
   setUpdateProjectMembers: React.Dispatch<React.SetStateAction<{ [key: number]: ProjectMember[] }>>;
   isActive: boolean;
   members: Member[];
@@ -80,7 +84,7 @@ type DropTestProps = {
 
 const DropTest: React.FC<DropTestProps> = ({
   project,
-  projectMembers,
+  updateProjectMembers,
   setUpdateProjectMembers,
   isActive,
   members,
@@ -88,21 +92,25 @@ const DropTest: React.FC<DropTestProps> = ({
   const [employeesItems, setEmployeesItems] = useState<Member[]>([]);
   const [projectItems, setProjectItems] = useState<Member[]>([]);
 
+  const projectDescriptionId = project.projectDescription.id;
+
   useEffect(() => {
-    const projectDescriptionId = project.projectDescription.id;
-    const projectMemberIds = projectMembers
-      .filter((pm) => pm.projectDescriptionId === projectDescriptionId)
-      .map((pm) => pm.staffProfileId);
+    // 初期状態を設定
+    const projectMemberIds = updateProjectMembers[projectDescriptionId]
+      ? updateProjectMembers[projectDescriptionId].map((pm) => pm.staffProfileId)
+      : [];
+
     const projectMembersData = members.filter((member) =>
       projectMemberIds.includes(member.id)
     );
+
     setProjectItems(projectMembersData);
 
     const remainingEmployees = members.filter(
       (member) => !projectMemberIds.includes(member.id)
     );
     setEmployeesItems(remainingEmployees);
-  }, [members, projectMembers, project.projectDescription.id]);
+  }, [members, projectDescriptionId, updateProjectMembers]);
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
@@ -128,7 +136,7 @@ const DropTest: React.FC<DropTestProps> = ({
     if (itemIndex === -1) return;
 
     const [movedItem] = sourceItems.splice(itemIndex, 1);
-    destinationItems = [...destinationItems, movedItem];
+    destinationItems.push(movedItem);
 
     if (sourceId === 'employees' && destinationId === 'project') {
       setEmployeesItems(sourceItems);
@@ -137,18 +145,19 @@ const DropTest: React.FC<DropTestProps> = ({
       setProjectItems(sourceItems);
       setEmployeesItems(destinationItems);
     }
-  };
 
-  useEffect(() => {
+    // 変更があったときのみ updateProjectMembers を更新
+    const newProjectMembers = (destinationId === 'project' ? destinationItems : sourceItems).map((item) => ({
+      id: item.id,
+      staffProfileId: item.id,
+      projectDescriptionId: projectDescriptionId,
+    }));
+
     setUpdateProjectMembers((prev) => ({
       ...prev,
-      [project.projectDescription.id]: projectItems.map((item) => ({
-        id: item.id,
-        staffProfileId: item.id,
-        projectDescriptionId: project.projectDescription.id,
-      })),
+      [projectDescriptionId]: newProjectMembers,
     }));
-  }, [projectItems, project.projectDescription.id, setUpdateProjectMembers]);
+  };
 
   return (
     <DndContext collisionDetection={closestCenter} onDragEnd={handleDragEnd}>

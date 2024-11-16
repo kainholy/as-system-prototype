@@ -41,6 +41,13 @@ type ProjectMember = {
   projectDescriptionId: number;
 };
 
+type ProjectQualification = {
+  qualification: {
+    qualificationName: string;
+  };
+  numberOfMembersNeeded: number;
+};
+
 type ProjectDescription = {
   id: number;
   workDate: string;
@@ -54,12 +61,7 @@ type ProjectDescription = {
   unitPrice: number;
   workTimeType: string;
   memo: string;
-  projectQualification: {
-    qualification: {
-      qualificationName: string;
-    };
-    numberOfMembersNeeded: number;
-  }[];
+  projectQualification: ProjectQualification[];
   projectMember: ProjectMember[];
 };
 
@@ -76,7 +78,6 @@ type Project = {
 export default function ShiftCreate() {
   const [members, setMembers] = useState<Member[]>([]);
   const [projects, setProjects] = useState<Project[]>([]);
-  const [projectMembers, setProjectMembers] = useState<ProjectMember[]>([]);
   const [updateProjectMembers, setUpdateProjectMembers] = useState<{ [key: number]: ProjectMember[] }>({});
   const [allProjectMembers, setAllProjectMembers] = useState<ProjectMember[]>([]);
   const [year, setYear] = useState(new Date().getFullYear());
@@ -108,17 +109,30 @@ export default function ShiftCreate() {
         const fetchedProjects: Project[] = response.data;
         setProjects(fetchedProjects);
 
+        // 全ての projectMembers を抽出して状態を更新
         const allProjectMembers: ProjectMember[] = [];
+        const initialUpdateProjectMembers: { [key: number]: ProjectMember[] } = {};
 
         fetchedProjects.forEach((project) => {
           project.projectDescription.forEach((description) => {
-            if (description.projectMember && Array.isArray(description.projectMember)) {
-              allProjectMembers.push(...description.projectMember);
+            if (description.ProjectMember && Array.isArray(description.ProjectMember)) {
+              allProjectMembers.push(...description.ProjectMember);
+
+              // updateProjectMembers を初期化
+              initialUpdateProjectMembers[description.id] = description.ProjectMember.map((pm) => ({
+                id: pm.id,
+                staffProfileId: pm.staffProfileId,
+                projectDescriptionId: pm.projectDescriptionId,
+              }));
+            } else {
+              // projectMember がない場合は空の配列を設定
+              initialUpdateProjectMembers[description.id] = [];
             }
           });
         });
 
-        setProjectMembers(allProjectMembers);
+        setAllProjectMembers(allProjectMembers);
+        setUpdateProjectMembers(initialUpdateProjectMembers);
       } catch (error) {
         console.error('プロジェクト情報の取得中にエラーが発生しました:', error);
       }
@@ -128,6 +142,7 @@ export default function ShiftCreate() {
     fetchProjects();
   }, [year, month]);
 
+  // 指定した月の日付を生成する関数
   function getDaysInMonth(year: number, month: number) {
     const daysInMonth = [];
     const date = new Date(year, month - 1, 1);
@@ -186,13 +201,13 @@ export default function ShiftCreate() {
             gap="32px"
             position="relative"
           >
-            <Button colorScheme="gray" type="submit" size="sm" onClick={minusFunc}>
+            <Button colorScheme="gray" type="button" size="sm" onClick={minusFunc}>
               ←
             </Button>
             <Heading fontSize="md">
               {year}年 {month}月
             </Heading>
-            <Button colorScheme="gray" type="submit" size="sm" onClick={addFunc}>
+            <Button colorScheme="gray" type="button" size="sm" onClick={addFunc}>
               →
             </Button>
           </Flex>
@@ -201,10 +216,12 @@ export default function ShiftCreate() {
               day.getMonth() + 1
             }月${day.getDate()}日`;
 
+            // 当日のプロジェクトをフィルタリング
             const projectsForDay = projects.flatMap((project) => {
               return project.projectDescription
                 .filter((description) => {
                   const projectDate = new Date(description.workDate);
+                  // 年、月、日を個別に比較
                   return (
                     projectDate.getFullYear() === day.getFullYear() &&
                     projectDate.getMonth() === day.getMonth() &&
@@ -217,16 +234,19 @@ export default function ShiftCreate() {
                 }));
             });
 
+            // プロジェクトがない場合は表示しない
             if (projectsForDay.length === 0) {
               return null;
             }
 
             return (
               <div key={formattedDay}>
+                {/* 日付ごとのHeading */}
                 <Heading fontSize="xl" mb="16px">
                   {formattedDay}
                 </Heading>
 
+                {/* 日付に対応するプロジェクトリスト */}
                 <Flex w="100%" direction="column" gap="24px">
                   {projectsForDay.map((project) => (
                     <Box
@@ -237,7 +257,7 @@ export default function ShiftCreate() {
                       <DropTest
                         project={project}
                         members={members}
-                        projectMembers={projectMembers}
+                        updateProjectMembers={updateProjectMembers}
                         setUpdateProjectMembers={setUpdateProjectMembers}
                         isActive={project.projectDescription.id === activeId}
                       />
