@@ -42,6 +42,7 @@ type ProjectMember = {
 };
 
 type ProjectDescription = {
+  id: number;
   workDate: string;
   startTime: string;
   endTime: string;
@@ -59,7 +60,7 @@ type ProjectDescription = {
     };
     numberOfMembersNeeded: number;
   }[];
-  projectMember: ProjectMember[]; // 追加
+  projectMember: ProjectMember[];
 };
 
 type Project = {
@@ -69,15 +70,17 @@ type Project = {
     companyName: string;
     phonenumber: string;
   };
-  projectDescription: ProjectDescription[]; // 修正
+  projectDescription: ProjectDescription[];
 };
 
 export default function ShiftCreate() {
   const [members, setMembers] = useState<Member[]>([]);
   const [projects, setProjects] = useState<Project[]>([]);
   const [projectMembers, setProjectMembers] = useState<ProjectMember[]>([]);
-  const [year, setYear] = useState(new Date().getFullYear()); // 現在の年を取得
-  const [month, setMonth] = useState(new Date().getMonth() + 1); // 現在の月を取得
+  const [updateProjectMembers, setUpdateProjectMembers] = useState<{ [key: number]: ProjectMember[] }>({});
+  const [allProjectMembers, setAllProjectMembers] = useState<ProjectMember[]>([]);
+  const [year, setYear] = useState(new Date().getFullYear());
+  const [month, setMonth] = useState(new Date().getMonth() + 1);
 
   const [activeId, setActiveId] = useState<number | null>(null);
   const toggleActive = (id: number) => {
@@ -105,7 +108,6 @@ export default function ShiftCreate() {
         const fetchedProjects: Project[] = response.data;
         setProjects(fetchedProjects);
 
-        // プロジェクトから全ての projectMembers を抽出して状態を更新
         const allProjectMembers: ProjectMember[] = [];
 
         fetchedProjects.forEach((project) => {
@@ -126,7 +128,6 @@ export default function ShiftCreate() {
     fetchProjects();
   }, [year, month]);
 
-  // 指定した月の日付を生成する関数
   function getDaysInMonth(year: number, month: number) {
     const daysInMonth = [];
     const date = new Date(year, month - 1, 1);
@@ -151,6 +152,25 @@ export default function ShiftCreate() {
     date.setMonth(date.getMonth() - 1);
     setYear(date.getFullYear());
     setMonth(date.getMonth() + 1);
+  };
+
+  useEffect(() => {
+    console.log('updateProjectMembers:', updateProjectMembers);
+    // updateProjectMembersオブジェクトから全ての隊員情報を抽出
+    const newAllProjectMembers = Object.values(updateProjectMembers).flat();
+    setAllProjectMembers(newAllProjectMembers);
+    console.log('allProjectMembers:', newAllProjectMembers);
+  }, [updateProjectMembers]);
+
+  const saveDataToBackend = async () => {
+    try {
+      await axios.post('http://localhost:4000/projectMembers/update', {
+        updateProjectMembers,
+      });
+      console.log('データをバックエンドに正常に送信しました');
+    } catch (error) {
+      console.error('データ送信中にエラーが発生しました:', error);
+    }
   };
 
   return (
@@ -181,12 +201,10 @@ export default function ShiftCreate() {
               day.getMonth() + 1
             }月${day.getDate()}日`;
 
-            // 当日のプロジェクトをフィルタリング
             const projectsForDay = projects.flatMap((project) => {
               return project.projectDescription
                 .filter((description) => {
                   const projectDate = new Date(description.workDate);
-                  // 年、月、日を個別に比較
                   return (
                     projectDate.getFullYear() === day.getFullYear() &&
                     projectDate.getMonth() === day.getMonth() &&
@@ -199,31 +217,29 @@ export default function ShiftCreate() {
                 }));
             });
 
-            // プロジェクトがない場合は表示しない
             if (projectsForDay.length === 0) {
               return null;
             }
 
             return (
               <div key={formattedDay}>
-                {/* 日付ごとのHeading */}
                 <Heading fontSize="xl" mb="16px">
                   {formattedDay}
                 </Heading>
 
-                {/* 日付に対応するプロジェクトリスト */}
                 <Flex w="100%" direction="column" gap="24px">
                   {projectsForDay.map((project) => (
                     <Box
-                      key={project.id}
+                      key={project.projectDescription.id}
                       w="100%"
-                      onClick={() => toggleActive(project.id)}
+                      onClick={() => toggleActive(project.projectDescription.id)}
                     >
                       <DropTest
                         project={project}
                         members={members}
                         projectMembers={projectMembers}
-                        isActive={project.id === activeId}
+                        setUpdateProjectMembers={setUpdateProjectMembers}
+                        isActive={project.projectDescription.id === activeId}
                       />
                     </Box>
                   ))}
@@ -231,6 +247,11 @@ export default function ShiftCreate() {
               </div>
             );
           })}
+        </Flex>
+        <Flex justifyContent="center" mt="24px">
+          <Button colorScheme="blue" onClick={saveDataToBackend}>
+            変更を保存
+          </Button>
         </Flex>
       </Box>
     </>

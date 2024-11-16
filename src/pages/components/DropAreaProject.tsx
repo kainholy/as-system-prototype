@@ -13,6 +13,7 @@ type ProjectQualification = {
 };
 
 type ProjectDescription = {
+  id: number;
   workDate: string;
   startTime: string;
   endTime: string;

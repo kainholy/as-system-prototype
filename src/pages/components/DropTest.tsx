@@ -48,6 +48,7 @@ type Project = {
     phonenumber: string;
   };
   projectDescription: {
+    id: number;
     workDate: string;
     startTime: string;
     endTime: string;
@@ -65,36 +66,43 @@ type Project = {
       };
       numberOfMembersNeeded: number;
     }[];
+    projectMember: ProjectMember[];
   };
 };
 
 type DropTestProps = {
   project: Project;
   projectMembers: ProjectMember[];
+  setUpdateProjectMembers: React.Dispatch<React.SetStateAction<{ [key: number]: ProjectMember[] }>>;
   isActive: boolean;
   members: Member[];
 };
 
-const DropTest: React.FC<DropTestProps> = ({ project, projectMembers, isActive, members }) => {
-  // 初期化
+const DropTest: React.FC<DropTestProps> = ({
+  project,
+  projectMembers,
+  setUpdateProjectMembers,
+  isActive,
+  members,
+}) => {
   const [employeesItems, setEmployeesItems] = useState<Member[]>([]);
   const [projectItems, setProjectItems] = useState<Member[]>([]);
 
-  // プロジェクトメンバーと全メンバーをもとに、表示するアイテムを設定
   useEffect(() => {
-    // projectMembersからstaffProfileIdを使って対応するMemberを取得
-    const projectMemberIds = projectMembers.map((pm) => pm.staffProfileId);
+    const projectDescriptionId = project.projectDescription.id;
+    const projectMemberIds = projectMembers
+      .filter((pm) => pm.projectDescriptionId === projectDescriptionId)
+      .map((pm) => pm.staffProfileId);
     const projectMembersData = members.filter((member) =>
       projectMemberIds.includes(member.id)
     );
     setProjectItems(projectMembersData);
 
-    // プロジェクトに含まれないメンバーをemployeesItemsに設定
     const remainingEmployees = members.filter(
       (member) => !projectMemberIds.includes(member.id)
     );
     setEmployeesItems(remainingEmployees);
-  }, [members, projectMembers]);
+  }, [members, projectMembers, project.projectDescription.id]);
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
@@ -104,7 +112,6 @@ const DropTest: React.FC<DropTestProps> = ({ project, projectMembers, isActive, 
     const activeId = Number(active.id);
     const overId = over.id as string;
 
-    // ドラッグされたアイテムがどちらのリストに属していたかを判定
     const sourceId = employeesItems.some((item) => item.id === activeId)
       ? 'employees'
       : 'project';
@@ -132,6 +139,17 @@ const DropTest: React.FC<DropTestProps> = ({ project, projectMembers, isActive, 
     }
   };
 
+  useEffect(() => {
+    setUpdateProjectMembers((prev) => ({
+      ...prev,
+      [project.projectDescription.id]: projectItems.map((item) => ({
+        id: item.id,
+        staffProfileId: item.id,
+        projectDescriptionId: project.projectDescription.id,
+      })),
+    }));
+  }, [projectItems, project.projectDescription.id, setUpdateProjectMembers]);
+
   return (
     <DndContext collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
       <Flex width="100%" justify="space-between" position="relative">
@@ -144,7 +162,6 @@ const DropTest: React.FC<DropTestProps> = ({ project, projectMembers, isActive, 
           />
         </Flex>
         <Box w="calc(100% - 75% - 20px)">
-          {/* isActiveがtrueの時のみ表示 */}
           {isActive && <DroppableAreaEmployee id="employees" items={employeesItems} />}
         </Box>
       </Flex>
