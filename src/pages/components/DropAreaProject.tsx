@@ -98,34 +98,33 @@ const DroppableAreaProject: React.FC<DroppableAreaProjectProps> = ({
           <Text fontSize="sm">
             {getFormattedTime(project.projectDescription.startTime)} ~ {getFormattedTime(project.projectDescription.endTime)}
           </Text>
-          （
           <Badge variant="outline" colorScheme="orange" p="0 5px">
             <Text p="1px 7px">{project.projectDescription.workTimeType}</Text>
           </Badge>
-          ）
         </Flex>
       </Flex>
       <Flex gap="20px" align="center">
         <Text fontSize="sm">👮‍♀️</Text>
         <Flex gap="8px" align="center">
-          <Text fontSize="sm">{project.projectDescription.requiredMembers}</Text>
-          （
+          <Text fontSize="sm">{project.projectDescription.requiredMembers}名</Text>
+          ---
           <Flex gap="4px" align="center">
             {project.projectDescription.projectQualification.map((qualification) => (
-              <Badge
-                key={qualification.qualification.qualificationName}
-                variant="outline"
-                colorScheme="blue"
-                p="0 5px"
-              >
-                <Text p="1px 7px">
-                  {qualification.qualification.qualificationName}{' '}
-                  {qualification.numberOfMembersNeeded}
-                </Text>
-              </Badge>
+              <>
+                <Badge
+                  key={qualification.qualification.qualificationName}
+                  variant="outline"
+                  colorScheme="blue"
+                  p="0 5px"
+                  >
+                  <Text p="1px 7px">
+                    {qualification.qualification.qualificationName}{' '}
+                  </Text>
+                </Badge>
+                <Text fontSize="sm">{qualification.numberOfMembersNeeded}名</Text>
+              </>
             ))}
           </Flex>
-          ）
         </Flex>
       </Flex>
       <Flex ref={setNodeRef} gap="12px" mt="24px" wrap="wrap">

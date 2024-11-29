@@ -134,13 +134,6 @@ export default function Page() {
     setMonth(date.getMonth() + 1);
   };
 
-  const workers = [
-    { id: '1', name: '大倉 聖哉', qualification: '2級' },
-    { id: '2', name: '和田 大輝', qualification: 'なし' },
-    { id: '3', name: '山田 太郎', qualification: '3級' },
-    { id: '6', name: '山田 太郎', qualification: '3級' },
-  ]
-
   return (
     <>
       <Navigation />
