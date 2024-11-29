@@ -47,6 +47,7 @@ function MemberCreate() {
   const [phoneNumber, setPhoneNumber] = useState("");
   const [email, setEmail] = useState("");
   const [hireDate, setHireDate] = useState("");
+  const [role, setRole] = useState("");
   const [emergencyContact, setEmergencyContact] = useState({
     name: "",
     phoneNumber: "",
@@ -101,6 +102,7 @@ function MemberCreate() {
         email,
         birthday,
         hireDate,
+        role,
         emergencyContacts: [emergencyContact],
         ngStaff: selectedNgStaffs,
         staffQualifications: selectedQualifications,
@@ -294,8 +296,21 @@ function MemberCreate() {
             />
           </FormControl>
 
+          <FormControl isRequired>
+            <FormLabel fontSize="sm" color="gray.800">
+              雇用形態
+            </FormLabel>
+            <RadioGroup value={role} onChange={(value) => setRole(value)}>
+              <HStack spacing="24px">
+                <Radio value="正社員">正社員</Radio>
+                <Radio value="アルバイト">アルバイト</Radio>
+                <Radio value="その他">その他</Radio>
+              </HStack>
+            </RadioGroup>
+          </FormControl>
+
           <Flex flex="1" gap="40px">
-            <FormControl isRequired>
+            <FormControl>
               <FormLabel fontSize="sm" color="gray.800">
                 緊急連絡先
               </FormLabel>
@@ -312,13 +327,13 @@ function MemberCreate() {
               />
             </FormControl>
 
-            <FormControl isRequired>
+            <FormControl>
               <FormLabel fontSize="sm" color="gray.800">
                 氏名
               </FormLabel>
               <Input
                 type="text"
-                placeholder="父"
+                placeholder="山田一郎"
                 value={emergencyContact.name}
                 onChange={(e) =>
                   setEmergencyContact({
@@ -329,7 +344,7 @@ function MemberCreate() {
               />
             </FormControl>
 
-            <FormControl isRequired>
+            <FormControl>
               <FormLabel fontSize="sm" color="gray.800">
                 属柄
               </FormLabel>
@@ -348,7 +363,7 @@ function MemberCreate() {
           </Flex>
 
          {/* 資格 */}
-          <FormControl isRequired>
+          <FormControl>
             <FormLabel fontSize="sm" color="gray.800">
               資格
             </FormLabel>
@@ -386,7 +401,7 @@ function MemberCreate() {
           </FormControl>
 
           {/* NG隊員 */}
-          <FormControl isRequired>
+          <FormControl>
             <FormLabel fontSize="sm" color="gray.800">
               NG隊員
             </FormLabel>

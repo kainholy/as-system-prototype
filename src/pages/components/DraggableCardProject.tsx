@@ -42,19 +42,33 @@ const DraggableCardProject: React.FC<DraggableCardProjectProps> = ({
       style={style}
       {...listeners}
       {...attributes}
+      minW={'100px'}
     >
-      <Flex gap="8px" align="left">
-        {filteredQualifications.map((qualification) => (
-          <Badge
-            key={`${qualification.id}-${qualification.qualificationName}`}
-            variant="outline"
-            colorScheme="blue"
-            p="2px 5px"
-            w="fit-content"
-          >
-            <Text fontSize="9px">{qualification.qualificationName}</Text>
-          </Badge>
-        ))}
+      <Flex gap="8px" align="left" direction={'column'}>
+        <Flex gap="4px" wrap={'wrap'}>
+          {qualifications.length !== 0 ? 
+            qualifications.map((qualification) => (
+              <Badge
+                key={`${qualification.id}-${qualification.qualificationName}`}
+                variant="outline"
+                colorScheme="blue"
+                p="2px 5px"
+                w="fit-content"
+              >
+                <Text fontSize="9px">{qualification.qualificationName}</Text>
+              </Badge>
+          )) :
+          (
+            <Badge
+              variant="outline"
+              colorScheme="gray"
+              p="2px 5px"
+              w="fit-content"
+            >
+              <Text fontSize="9px">なし</Text>
+            </Badge>
+          )}
+        </Flex>
         <Heading fontSize="sm">{name}</Heading>
       </Flex>
     </Card>

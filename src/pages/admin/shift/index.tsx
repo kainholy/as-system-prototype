@@ -7,6 +7,71 @@ import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 
+type StaffQualification = {
+  id: number;
+  qualification: Qualification;
+};
+
+type EmergencyContact = {
+  name: string;
+  relationship: string;
+  phoneNumber: string;
+};
+
+type Qualification = {
+  id: number;
+  qualificationName: string;
+};
+
+type Member = {
+  id: number;
+  staffId: string;
+  name: string;
+  romanname: string;
+  address: string;
+  postcode: string;
+  phonenumber: string;
+  email: string;
+  birthday: string;
+  hiredate: string;
+  role: string;
+  emergencyContacts: EmergencyContact[];
+  qualifications: Qualification[];
+  ngStaffList: string;
+  bannedInfo: string;
+  selfBanned: string;
+};
+
+type ProjectMember = {
+  id: number;
+  staffProfileId: number;
+  projectDescriptionId: number;
+};
+
+type ProjectQualification = {
+  qualification: {
+    qualificationName: string;
+  };
+  numberOfMembersNeeded: number;
+};
+
+type ProjectDescription = {
+  id: number;
+  workDate: string;
+  startTime: string;
+  endTime: string;
+  address: string;
+  postcode: string;
+  managerName: string;
+  phonenumber: string;
+  requiredMembers: number;
+  unitPrice: number;
+  workTimeType: string;
+  memo: string;
+  projectQualification: ProjectQualification[];
+  projectMember: ProjectMember[];
+};
+
 type Project = {
   id: number;
   projectName: string;
@@ -14,26 +79,9 @@ type Project = {
     companyName: string;
     phonenumber: string;
   };
-  projectDescription: {
-    workDate: string;
-    startTime: string;
-    endTime: string;
-    address: string;
-    postcode: string;
-    managerName: string;
-    phonenumber: string;
-    requiredMembers: number;
-    unitPrice: number;
-    workTimeType: string;
-    memo: string;
-    projectQualification: {
-      qualification: {
-        qualificationName: string;
-      };
-      numberOfMembersNeeded: number;
-    }[];
-  };
+  projectDescription: ProjectDescription[];
 };
+
 
 export default function Page() {
   const [projects, setProjects] = useState<Project[]>([]); // プロジェクトデータの状態
@@ -50,7 +98,6 @@ export default function Page() {
             month,
           },
         });
-        console.log(response.data); // デバッグ用にプロジェクトデータを表示
         setProjects(response.data);
       } catch (error) {
         console.error("プロジェクト情報の取得中にエラーが発生しました:", error);
@@ -256,29 +303,34 @@ export default function Page() {
                         )}
                       </Flex>
                       <Flex gap="12px" mt="24px" wrap="wrap">
-                        {/* {projectItem.projectDescription.projectMember.map((member: )
-                        )} */}
-                        {workers.map((worker) => (
-                          <Box
-                            key={worker.id}
-                            p="8px 10px"
-                            backgroundColor="white"
-                          >
-                            <Flex gap="8px" align="left">
-                              {worker.qualification === "なし" ? null : (
-                                <Badge
-                                  variant="outline"
-                                  colorScheme="blue"
-                                  p="2px 5px"
-                                  w="fit-content"
-                                >
-                                  <Text fontSize="9px">{worker.qualification}</Text>
-                                </Badge>
-                              )}
-                              <Heading fontSize="sm">{worker.name}</Heading>
-                            </Flex>
-                          </Box>
-                        ))}
+                        { projectItem.projectDescription.ProjectMember ? (
+                          projectItem.projectDescription.ProjectMember.map((worker: ProjectMember) => (
+                            <Box
+                              key={worker.id}
+                              p="8px 10px"
+                              backgroundColor="white"
+                            >
+                              <Flex gap="8px" align="left">
+                                {worker.staffProfile.qualifications ? (
+                                  worker.staffProfile.qualifications.map((item: StaffQualification) => (
+                                  <Badge
+                                    key={item.id}
+                                    variant="outline"
+                                    colorScheme="blue"
+                                    p="2px 5px"
+                                    w="fit-content"
+                                  >
+                                    <Text fontSize="9px">{item.qualification.qualificationName}</Text>
+                                  </Badge>
+                                  ))) : null
+                                }
+                                <Heading fontSize="sm">{worker.staffProfile.name}</Heading>
+                              </Flex>
+                            </Box>
+                          ))) : (
+                            <Text>データがありません</Text>
+                          )
+                        }
                       </Flex>
                     </Box>
                   );

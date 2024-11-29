@@ -1,5 +1,5 @@
-import React from 'react';
-import { Badge, Card, Flex, Heading, Text } from '@chakra-ui/react';
+import React, { useEffect } from 'react';
+import { Badge, Box, Card, Flex, Heading, Text } from '@chakra-ui/react';
 import { useDraggable } from '@dnd-kit/core';
 
 type QualificationMember = {
@@ -29,11 +29,6 @@ const DraggableCardEmployee: React.FC<DraggableCardEmployeeProps> = ({
     cursor: 'grab',
   };
 
-  // 'なし' ではない資格のみをフィルタリング
-  const filteredQualifications = qualifications.filter(
-    (qualification) => qualification.qualificationName !== 'なし'
-  );
-
   return (
     <Card
       _hover={{ backgroundColor: 'gray.100', cursor: 'pointer', boxShadow: 'md' }}
@@ -43,18 +38,31 @@ const DraggableCardEmployee: React.FC<DraggableCardEmployeeProps> = ({
       {...listeners}
       {...attributes}
     >
-      <Flex gap="8px" align="left">
-        {filteredQualifications.map((qualification) => (
-          <Badge
-            key={`${qualification.id}-${qualification.qualificationName}`}
-            variant="outline"
-            colorScheme="blue"
-            p="2px 5px"
-            w="fit-content"
-          >
-            <Text fontSize="9px">{qualification.qualificationName}</Text>
-          </Badge>
-        ))}
+      <Flex gap="8px" align="left" direction={'column'}>
+        <Flex gap="4px" wrap={'wrap'}>
+          {qualifications.length !== 0 ? 
+            qualifications.map((qualification) => (
+              <Badge
+                key={`${qualification.id}-${qualification.qualificationName}`}
+                variant="outline"
+                colorScheme="blue"
+                p="2px 5px"
+                w="fit-content"
+              >
+                <Text fontSize="9px">{qualification.qualificationName}</Text>
+              </Badge>
+          )) :
+          (
+            <Badge
+              variant="outline"
+              colorScheme="gray"
+              p="2px 5px"
+              w="fit-content"
+            >
+              <Text fontSize="9px">なし</Text>
+            </Badge>
+          )}
+        </Flex>
         <Heading fontSize="sm">{name}</Heading>
       </Flex>
     </Card>

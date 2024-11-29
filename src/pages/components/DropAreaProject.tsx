@@ -68,6 +68,11 @@ const DroppableAreaProject: React.FC<DroppableAreaProjectProps> = ({
     id,
   });
 
+  function getFormattedTime(isoString: string) {
+    const date = new Date(isoString); // ISO形式の文字列をDateオブジェクトに変換
+    return date.toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' });
+  }
+
   return (
     <Box
       _hover={{ opacity: '1', cursor: 'pointer' }}
@@ -91,7 +96,7 @@ const DroppableAreaProject: React.FC<DroppableAreaProjectProps> = ({
         <Text fontSize="sm">🕰️</Text>
         <Flex gap="8px" align="center">
           <Text fontSize="sm">
-            {project.projectDescription.startTime} ~ {project.projectDescription.endTime}
+            {getFormattedTime(project.projectDescription.startTime)} ~ {getFormattedTime(project.projectDescription.endTime)}
           </Text>
           （
           <Badge variant="outline" colorScheme="orange" p="0 5px">

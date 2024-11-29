@@ -137,6 +137,18 @@ function EditCompany({ setEditOpen, companyId }: EditCompanyProps) {
 
         <FormControl isRequired>
           <FormLabel fontSize="sm" color="gray.800">
+            郵便番号
+          </FormLabel>
+          <Input
+            type="text"
+            name="postcode"
+            value={editedCompany.postcode}
+            onChange={(e) => handleInputChange("postcode", e.target.value)}
+          />
+        </FormControl>
+
+        <FormControl isRequired>
+          <FormLabel fontSize="sm" color="gray.800">
             住所
           </FormLabel>
           <Input

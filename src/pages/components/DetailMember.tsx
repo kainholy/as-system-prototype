@@ -46,6 +46,15 @@ export default function DetailMember({
   const detailCloseFunc = () => {
     setDetailOpen(false); // モーダルを閉じる関数
   };
+
+  function formatDateToJapanese(isoString: string) {
+    const date = new Date(isoString);
+    const year = date.getFullYear(); // 年
+    const month = date.getMonth() + 1; // 月 (0から始まるので +1)
+    const day = date.getDate(); // 日
+    return `${year}年${month}月${day}日`;
+  }
+
   return (
     <Box
       position="absolute"
@@ -108,7 +117,7 @@ export default function DetailMember({
           <Text fontSize="sm" color="gray.800">
             生年月日
           </Text>
-          <Heading size="sm">{member.birthday || "N/A"}</Heading>
+          <Heading size="sm">{formatDateToJapanese(member.birthday) || "N/A"}</Heading>
         </Flex>
 
         {/* 電話番号 */}
@@ -132,7 +141,7 @@ export default function DetailMember({
           <Text fontSize="sm" color="gray.800">
             雇用開始日
           </Text>
-          <Heading size="sm">{member.hiredate || "N/A"}</Heading>
+          <Heading size="sm">{formatDateToJapanese(member.hiredate) || "N/A"}</Heading>
         </Flex>
 
         {/* 緊急連絡先 */}
